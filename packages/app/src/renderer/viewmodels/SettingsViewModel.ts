@@ -1,11 +1,12 @@
 export interface SettingsViewModel {
-	settingFontViewModel: SettingFontViewModel
+	settingEditorViewModel: SettingEditorViewModel
 	settingThemeViewModel: SettingThemeViewModel
 }
 
-export interface SettingFontViewModel {
-	size: number
-	family: string
+export interface SettingEditorViewModel {
+	width: number
+	fontSize: number
+	fontFamily: string
 }
 
 export interface SettingThemeViewModel {

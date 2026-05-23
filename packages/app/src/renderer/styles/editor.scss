@@ -54,11 +54,12 @@ $offset: $mark-size + $mark-gap;
 }
 
 .milkdown > .editor {
-	width: 500px;
+	width: var(--editor-width, 500px);
 	min-width: 100px;
 	max-width: calc(100% - 60px);
 	min-height: 100%;
-	white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-all;
 	margin: 40px 0;
 
 	position: relative;

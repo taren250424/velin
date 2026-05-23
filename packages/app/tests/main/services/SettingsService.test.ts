@@ -9,11 +9,14 @@ import { settingsSessionPath } from "../data/test_data"
 
 describe("Settings Service - Sync Settings Session", () => {
 	const settingsDto: SettingsDto = {
-		settingFontDto: {
-			size: 16,
-			family: 'sans-serif'
+		settingEditorDto: {
+			width: 600,
+			fontSize: 16,
+			fontFamily: "sans-serif",
 		},
-		settingThemeDto: {},
+		settingThemeDto: {
+			theme: "light",
+		},
 	}
 
 	let fakeFileManager: FakeFileManager
@@ -37,6 +40,7 @@ describe("Settings Service - Sync Settings Session", () => {
 
 		// Then.
 		const session = await fakeSettingsRepository.readSettingsSession()
-		expect(session!.settingFontSessionModel.size).toBe(copiedSettingsDto.settingFontDto.size)
+		expect(session!.settingEditorSessionModel.fontSize).toBe(copiedSettingsDto.settingEditorDto.fontSize)
+		expect(session!.settingEditorSessionModel.width).toBe(copiedSettingsDto.settingEditorDto.width)
 	})
 })

@@ -1,7 +1,7 @@
 import { DI } from "@renderer/constants"
 import type {
 	SettingsViewModel,
-	SettingFontViewModel,
+	SettingEditorViewModel,
 	SettingThemeViewModel,
 } from "@renderer/viewmodels/SettingsViewModel"
 import { inject, injectable } from "inversify"
@@ -25,13 +25,14 @@ export class SettingsRenderer {
 	//
 
 	render(viewModel: SettingsViewModel) {
-		this._renderSettingFont(viewModel.settingFontViewModel)
+		this._renderSettingEditor(viewModel.settingEditorViewModel)
 		this._renderSettingTheme(viewModel.settingThemeViewModel)
 	}
 
-	private _renderSettingFont(fontViewModel: SettingFontViewModel) {
-		this.elements.fontSizeInput.value = fontViewModel.size.toString()
-		this.elements.fontFamilyInput.value = fontViewModel.family.toString()
+	private _renderSettingEditor(editorViewModel: SettingEditorViewModel) {
+		this.elements.editorWidthInput.value = editorViewModel.width.toString()
+		this.elements.fontSizeInput.value = editorViewModel.fontSize.toString()
+		this.elements.fontFamilyInput.value = editorViewModel.fontFamily.toString()
 	}
 
 	private _renderSettingTheme(themeViewModel: SettingThemeViewModel) {
@@ -41,6 +42,12 @@ export class SettingsRenderer {
 	}
 
 	//
+
+	onChangeEditorWidth(callback: (width: number) => void) {
+		this.elements.editorWidthInput.addEventListener("change", () => {
+			callback(Number(this.elements.editorWidthInput.value))
+		})
+	}
 
 	onChangeFontSize(callback: (size: number) => void) {
 		this.elements.fontSizeInput.addEventListener("change", () => {

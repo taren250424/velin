@@ -15,6 +15,8 @@ export class SettingsElements {
 	public readonly fontSizeInput: HTMLInputElement
 	public readonly fontFamilyDiv: HTMLElement
 	public readonly fontFamilyInput: HTMLInputElement
+	public readonly editorWidthDiv: HTMLElement
+	public readonly editorWidthInput: HTMLInputElement
 
 	public readonly themeDiv: HTMLElement
 	public readonly themeSelect: aero.AeroSelect
@@ -30,11 +32,14 @@ export class SettingsElements {
 
 		this.overlay = document.querySelector("#settings-overlay") as HTMLElement
 
-		this.fontSizeDiv = document.querySelector("#setting-node-font-size") as HTMLElement
-		this.fontSizeInput = document.querySelector("#setting-node-font-size input") as HTMLInputElement
+		this.fontSizeDiv = document.querySelector("#setting-node-editor-size") as HTMLElement
+		this.fontSizeInput = document.querySelector("#setting-node-editor-size input") as HTMLInputElement
 
-		this.fontFamilyDiv = document.querySelector("#setting-node-font-family") as HTMLElement
-		this.fontFamilyInput = document.querySelector("#setting-node-font-family input") as HTMLInputElement
+		this.fontFamilyDiv = document.querySelector("#setting-node-editor-family") as HTMLElement
+		this.fontFamilyInput = document.querySelector("#setting-node-editor-family input") as HTMLInputElement
+
+		this.editorWidthDiv = document.querySelector("#setting-node-editor-width") as HTMLElement
+		this.editorWidthInput = document.querySelector("#setting-node-editor-width input") as HTMLInputElement
 
 		this.themeDiv = document.querySelector("#settings-node-theme") as HTMLElement
 		this.themeSelect = document.querySelector("#settings-node-theme aero-select") as aero.AeroSelect

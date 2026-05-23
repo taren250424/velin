@@ -66,9 +66,10 @@ describe("Load Service - loadedRenderer", () => {
 			y: 100,
 		}
 		const initialSettingsSession: SettingsSessionModel = {
-			settingFontSessionModel: {
-				size: 16,
-				family: 'sans-serif'
+			settingEditorSessionModel: {
+				width: 500,
+				fontSize: 16,
+				fontFamily: 'sans-serif',
 			},
 			settingThemeSessionModel: {},
 		}
@@ -159,7 +160,7 @@ describe("Load Service - loadedRenderer", () => {
 		const windowSentData = fakeMainWindow.webContents.send.mock.calls[0][1]
 		expect(windowSentData.maximize).toBe(initialWindowSession.maximize)
 		const settingsSentData = fakeMainWindow.webContents.send.mock.calls[0][2]
-		expect(settingsSentData.settingFontDto.size).toBe(initialSettingsSession.settingFontSessionModel.size)
+		expect(settingsSentData.settingEditorDto.fontSize).toBe(initialSettingsSession.settingEditorSessionModel.fontSize)
 		const sideSentData = fakeMainWindow.webContents.send.mock.calls[0][3]
 		expect(sideSentData.open).toBe(initialSideSession.open)
 		expect(sideSentData.width).toBe(initialSideSession.width)

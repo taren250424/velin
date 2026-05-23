@@ -1,9 +1,9 @@
 import type IFileManager from "../contracts/IFileManager"
 import type ISettingsUtils from "../contracts/ISettingsUtils"
-import type { SettingsDto, SettingFontDto, SettingThemeDto } from "@shared/dto/SettingsDto"
+import type { SettingsDto, SettingEditorDto, SettingThemeDto } from "@shared/dto/SettingsDto"
 import type {
 	SettingsSessionModel,
-	SettingFontSessionModel,
+	SettingEditorSessionModel,
 	SettingThemeSessionModel,
 } from "@main/models/SettingsSessionModel"
 import { inject, injectable } from "inversify"
@@ -15,14 +15,14 @@ export default class SettingsUtils implements ISettingsUtils {
 
 	toSettingsDto(session: SettingsSessionModel): SettingsDto {
 		return {
-			settingFontDto: session.settingFontSessionModel as SettingFontDto,
+			settingEditorDto: session.settingEditorSessionModel as SettingEditorDto,
 			settingThemeDto: session.settingThemeSessionModel as SettingThemeDto,
 		}
 	}
 
 	toSettingsSessionModel(dto: SettingsDto): SettingsSessionModel {
 		return {
-			settingFontSessionModel: dto.settingFontDto as SettingFontSessionModel,
+			settingEditorSessionModel: dto.settingEditorDto as SettingEditorSessionModel,
 			settingThemeSessionModel: dto.settingThemeDto as SettingThemeSessionModel,
 		}
 	}

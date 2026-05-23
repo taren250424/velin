@@ -309,6 +309,10 @@ export class TabEditorRenderer {
 		containers.forEach((c) => (c.style.fontFamily = family))
 	}
 
+	changeEditorWidth(width: number) {
+		this.elements.editorContainer.style.setProperty("--editor-width", `${width}px`)
+	}
+
 	//
 
 	get findAndReplaceContainer() {

@@ -190,6 +190,10 @@ export class TabEditorFacade {
 		this.renderer.changeFontFamily(family)
 	}
 
+	changeEditorWidth(width: number) {
+		this.renderer.changeEditorWidth(width)
+	}
+
 	//
 
 	get findAndReplaceContainer() {

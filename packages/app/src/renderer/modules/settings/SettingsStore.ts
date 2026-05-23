@@ -1,7 +1,7 @@
-import type { SettingsDto, SettingFontDto, SettingThemeDto } from "@shared/dto/SettingsDto"
+import type { SettingsDto, SettingEditorDto, SettingThemeDto } from "@shared/dto/SettingsDto"
 import type {
 	SettingsViewModel,
-	SettingFontViewModel,
+	SettingEditorViewModel,
 	SettingThemeViewModel,
 } from "@renderer/viewmodels/SettingsViewModel"
 
@@ -14,9 +14,10 @@ export class SettingsStore {
 
 	constructor() {
 		this._currentSettings = {
-			settingFontViewModel: {
-				size: 12,
-				family: "sans-serif",
+			settingEditorViewModel: {
+				width: 500,
+				fontSize: 12,
+				fontFamily: "sans-serif",
 			},
 
 			settingThemeViewModel: {
@@ -31,14 +32,18 @@ export class SettingsStore {
 
 	toSettingsViewModel(dto: SettingsDto): SettingsViewModel {
 		return {
-			settingFontViewModel: dto.settingFontDto as SettingFontViewModel,
+			settingEditorViewModel: {
+				width: dto.settingEditorDto?.width ?? 500,
+				fontSize: dto.settingEditorDto?.fontSize ?? 12,
+				fontFamily: dto.settingEditorDto?.fontFamily ?? "sans-serif",
+			},
 			settingThemeViewModel: dto.settingThemeDto as SettingThemeViewModel,
 		}
 	}
 
 	toSettingsDto(viewModel: SettingsViewModel): SettingsDto {
 		return {
-			settingFontDto: viewModel.settingFontViewModel as SettingFontDto,
+			settingEditorDto: viewModel.settingEditorViewModel as SettingEditorDto,
 			settingThemeDto: viewModel.settingThemeViewModel as SettingThemeDto,
 		}
 	}
@@ -50,16 +55,19 @@ export class SettingsStore {
 	}
 
 	setSettingsValue(viewModel: SettingsViewModel) {
-		this._setSettingFont(viewModel.settingFontViewModel)
+		this._setSettingEditor(viewModel.settingEditorViewModel)
 		this._setSettingTheme(viewModel.settingThemeViewModel)
 	}
 
-	private _setSettingFont(fontViewModel: SettingFontViewModel) {
-		this._currentSettings.settingFontViewModel.size =
-			fontViewModel?.size ?? this._currentSettings.settingFontViewModel.size
+	private _setSettingEditor(editorViewModel: SettingEditorViewModel) {
+		this._currentSettings.settingEditorViewModel.width =
+			editorViewModel?.width ?? this._currentSettings.settingEditorViewModel.width
 
-		this._currentSettings.settingFontViewModel.family =
-			fontViewModel.family ?? this._currentSettings.settingFontViewModel.family
+		this._currentSettings.settingEditorViewModel.fontSize =
+			editorViewModel?.fontSize ?? this._currentSettings.settingEditorViewModel.fontSize
+
+		this._currentSettings.settingEditorViewModel.fontFamily =
+			editorViewModel?.fontFamily ?? this._currentSettings.settingEditorViewModel.fontFamily
 	}
 
 	private _setSettingTheme(themeViewModel: SettingThemeViewModel) {
@@ -81,15 +89,20 @@ export class SettingsStore {
 
 	getChangeSet(): SettingsViewModel {
 		return {
-			settingFontViewModel: {
-				size:
-					this._currentSettings.settingFontViewModel.size !== this._draftSettings.settingFontViewModel.size
-						? this._draftSettings.settingFontViewModel.size
+			settingEditorViewModel: {
+				width:
+					this._currentSettings.settingEditorViewModel.width !== this._draftSettings.settingEditorViewModel.width
+						? this._draftSettings.settingEditorViewModel.width
+						: 500,
+
+				fontSize:
+					this._currentSettings.settingEditorViewModel.fontSize !== this._draftSettings.settingEditorViewModel.fontSize
+						? this._draftSettings.settingEditorViewModel.fontSize
 						: 12,
 
-				family:
-					this._currentSettings.settingFontViewModel.family !== this._draftSettings.settingFontViewModel.family
-						? this._draftSettings.settingFontViewModel.family
+				fontFamily:
+					this._currentSettings.settingEditorViewModel.fontFamily !== this._draftSettings.settingEditorViewModel.fontFamily
+						? this._draftSettings.settingEditorViewModel.fontFamily
 						: "sans-serif",
 			},
 
@@ -112,12 +125,16 @@ export class SettingsStore {
 
 	//
 
-	onChangeFontSize(size: number) {
-		this._draftSettings.settingFontViewModel.size = size
+	onChangeEditorWidth(width: number) {
+		this._draftSettings.settingEditorViewModel.width = width
 	}
 
-	onChangeFontFamily(family: string) {
-		this._draftSettings.settingFontViewModel.family = family
+	onChangeFontSize(fontSize: number) {
+		this._draftSettings.settingEditorViewModel.fontSize = fontSize
+	}
+
+	onChangeFontFamily(fontFamily: string) {
+		this._draftSettings.settingEditorViewModel.fontFamily = fontFamily
 	}
 
 	onChangeTheme(theme: string) {

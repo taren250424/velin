@@ -1,11 +1,12 @@
 export interface SettingsDto {
-	settingFontDto: SettingFontDto
+	settingEditorDto: SettingEditorDto
 	settingThemeDto: SettingThemeDto
 }
 
-export interface SettingFontDto {
-	size: number
-	family: string
+export interface SettingEditorDto {
+	width: number
+	fontSize: number
+	fontFamily: string
 }
 
 export interface SettingThemeDto {

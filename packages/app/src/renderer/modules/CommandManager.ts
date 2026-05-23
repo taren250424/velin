@@ -704,11 +704,12 @@ export class CommandManager {
 	//
 
 	performApplySettings(viewModel: SettingsViewModel) {
-		const font = viewModel.settingFontViewModel
+		const editor = viewModel.settingEditorViewModel
 		const theme = viewModel.settingThemeViewModel.theme
 
-		font.size && this.tabEditorFacade.changeFontSize(font.size)
-		font.family && this.tabEditorFacade.changeFontFamily(font.family)
+		editor.width && this.tabEditorFacade.changeEditorWidth(editor.width)
+		editor.fontSize && this.tabEditorFacade.changeFontSize(editor.fontSize)
+		editor.fontFamily && this.tabEditorFacade.changeFontFamily(editor.fontFamily)
 
 		if (theme) {
 			const html = document.documentElement

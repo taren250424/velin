@@ -83,6 +83,10 @@ export class SettingsFacade {
 	private _bindChangeEvents() {
 		const bindings: Binding<any>[] = [
 			{
+				on: this.renderer.onChangeEditorWidth.bind(this.renderer),
+				update: this.store.onChangeEditorWidth.bind(this.store),
+			},
+			{
 				on: this.renderer.onChangeFontSize.bind(this.renderer),
 				update: this.store.onChangeFontSize.bind(this.store),
 			},
