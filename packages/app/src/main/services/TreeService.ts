@@ -6,6 +6,7 @@ import type TrashMap from "@shared/types/TrashMap"
 import type ClipboardMode from "@shared/types/ClipboardMode"
 import type ITreeUtils from "@main/modules/contracts/ITreeUtils"
 import type Response from "@shared/types/Response"
+import type IFileWatcher from "@main/modules/contracts/IFileWatcher"
 
 import { inject } from "inversify"
 import path from "path"
@@ -15,7 +16,8 @@ export default class TreeService {
 	constructor(
 		@inject(DI_KEYS.FileManager) private readonly fileManager: IFileManager,
 		@inject(DI_KEYS.TreeUtils) private readonly treeUtils: ITreeUtils,
-		@inject(DI_KEYS.TreeRepository) private readonly treeRepository: ITreeRepository
+		@inject(DI_KEYS.TreeRepository) private readonly treeRepository: ITreeRepository,
+		@inject(DI_KEYS.FileWatcher) private readonly fileWatcher: IFileWatcher
 	) {}
 
 	async rename(prePath: string, newPath: string): Promise<Response<string>> {
@@ -34,7 +36,12 @@ export default class TreeService {
 			const nodeToUpdate = this._findNodeByPath(session, prePath)
 
 			if (nodeToUpdate) {
-				await this.fileManager.rename(prePath, finalNewPath)
+				await this.fileWatcher.close()
+				try {
+					await this.fileManager.rename(prePath, finalNewPath)
+				} finally {
+					await this.fileWatcher.watch(session.path)
+				}
 
 				const oldPath = nodeToUpdate.path
 				nodeToUpdate.path = finalNewPath
@@ -135,7 +142,7 @@ export default class TreeService {
 			if (copiedPaths.length > 0) {
 				await Promise.allSettled(copiedPaths.map((p) => this.fileManager.deletePermanently(p)))
 			}
-			
+
 			return {
 				result: false,
 				data: [],

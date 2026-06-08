@@ -8,4 +8,8 @@ export default class FakeFileWatcher implements IFileWatcher {
 	async watch(_: string): Promise<void> {
 		// no-op
 	}
+
+	async close(): Promise<void> {
+		// no-op
+	}
 }

@@ -38,6 +38,11 @@ export default class FileWatcher {
 		this._watch(dirPath)
 	}
 
+	async close() {
+		await this.watcher?.close()
+		this.watcher = null
+	}
+
 	private async _watch(dirPath: string) {
 		await this.watcher?.close()
 		this.watcher = watch(dirPath, {
