@@ -90,7 +90,14 @@ function bindContextmenuClickEvents(dispatcher: Dispatcher, tabEditorFacade: Tab
 //
 
 function bindFindReplaceEvnets(dispatcher: Dispatcher, tabEditorFacade: TabEditorFacade) {
-	const { findUp, findDown, replaceCurrent, replaceAll, closeFindReplace, findInput, replaceInput } = tabEditorFacade.renderer.elements
+	const { findUp, findDown, replaceCurrent, replaceAll, closeFindReplace, findInput, replaceInput } =
+		tabEditorFacade.renderer.elements
+
+	// Prevent buttons from stealing focus from the input when clicked.
+	// This keeps the find/replace input focused so keyboard shortcuts (e.g. Enter) work correctly.
+	;[findUp, findDown, replaceCurrent, replaceAll].forEach((btn) => {
+		btn.addEventListener("mousedown", (e) => e.preventDefault())
+	})
 
 	findUp.addEventListener("click", async () => {
 		await dispatcher.dispatch("find", "menu", "up")
@@ -120,13 +127,10 @@ function bindFindReplaceEvnets(dispatcher: Dispatcher, tabEditorFacade: TabEdito
 		}, 300)
 	)
 
-	replaceInput.addEventListener(
-		"input",
-		async (e: Event) => {
-			const value = (e.target as HTMLInputElement).value
-			await dispatcher.dispatch("replaceQueryChanged", "menu", value)
-		}
-	)
+	replaceInput.addEventListener("input", async (e: Event) => {
+		const value = (e.target as HTMLInputElement).value
+		await dispatcher.dispatch("replaceQueryChanged", "menu", value)
+	})
 }
 
 //
@@ -171,9 +175,9 @@ function bindMousemoveEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabE
 
 		const newIndex = tabEditorFacade.getInsertIndexFromMouseX(e.clientX)
 		if (tabEditorFacade.getInsertIndex() !== newIndex) {
-      tabEditorFacade.setInsertIndex(newIndex)
-      tabEditorFacade.updateDragIndicator(newIndex)
-    }
+			tabEditorFacade.setInsertIndex(newIndex)
+			tabEditorFacade.updateDragIndicator(newIndex)
+		}
 	})
 }
 
@@ -198,9 +202,9 @@ function bindMouseupEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabEdi
 }
 
 function bindMouseleaveEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabEditorFacade) {
-  emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, (e) => {
-    if (tabEditorFacade.isDrag()) {
-      tabEditorFacade.clearDrag()
-    }
-  })
+	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, (e) => {
+		if (tabEditorFacade.isDrag()) {
+			tabEditorFacade.clearDrag()
+		}
+	})
 }

@@ -31,13 +31,8 @@ function bindDocumentMousedownEvnet(focusManager: FocusManager, emitter: EventEm
 	document.addEventListener("mousedown", (e) => {
 		const target = e.target as HTMLElement
 
-		const activeItem = UI_ZONES_VALUES.find(item => target.closest(item.dom))
-		if (activeItem) {
-			focusManager.setFocusedZone(activeItem.id)
-
-			// Keep the previous task if the current zone has no specific task.
-			if (activeItem.task !== "") focusManager.setFocusedTask(activeItem.task)
-		}
+		const activeItem = UI_ZONES_VALUES.find((item) => target.closest(item.dom))
+		if (activeItem) focusManager.setFocusedZone(activeItem.id)
 
 		UI_ZONES_VALUES.forEach((item) => {
 			if (item !== activeItem) {

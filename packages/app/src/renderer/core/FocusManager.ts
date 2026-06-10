@@ -1,5 +1,5 @@
 import { injectable } from "inversify"
-import type { Zone, Task } from "./types"
+import { type Zone, type Task, UI_ZONES_VALUES } from "./types"
 
 @injectable()
 export class FocusManager {
@@ -14,11 +14,13 @@ export class FocusManager {
 		return this.focusedZone
 	}
 
-	setFocusedTask(task: Task) {
-		this.focusedTask = task
-	}
-
 	getFocusedTask() {
-		return this.focusedTask
+		const el = document.activeElement
+		if (!el) return "none"
+
+		const activeItem = UI_ZONES_VALUES.find((item) => el.closest(item.dom))
+		if (!activeItem || activeItem.task === "") return this.focusedTask
+
+		return activeItem.task as Task
 	}
 }

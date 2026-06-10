@@ -231,7 +231,7 @@ export class CommandManager {
 		if (!parentInfo) return
 
 		const { idx, viewModel, container } = parentInfo
-		
+
 		if (!viewModel.expanded) {
 			await this.performOpenDirectoryByTreeNode(this.treeFacade.getTreeNodeByIndex(idx))
 		}
@@ -261,10 +261,7 @@ export class CommandManager {
 		// TreeRenderer maps the root path to simpleBar.getContentElement().
 		// Using treeNodeContainer directly would append the input outside SimpleBar's scrollable content.
 		const wrapper = this.treeFacade.getTreeWrapperByIndex(idx)
-		const container =
-			idx === 0
-				? wrapper
-				: (wrapper.querySelector(DOM.SELECTOR_TREE_NODE_CHILDREN) as HTMLElement)
+		const container = idx === 0 ? wrapper : (wrapper.querySelector(DOM.SELECTOR_TREE_NODE_CHILDREN) as HTMLElement)
 
 		return { idx, viewModel, container }
 	}
@@ -340,7 +337,6 @@ export class CommandManager {
 
 	async _openTabEditorAfterCreate(filePath: string, cmd: CreateCommand) {
 		await this.performOpenFile(filePath)
-		this.focusManager.setFocusedTask("editor")
 		const tabView = this.tabEditorFacade.getTabEditorViewByPath(filePath)
 		cmd.setOpenedTabId(tabView.getId())
 	}
@@ -597,7 +593,7 @@ export class CommandManager {
 		if (targetIndex === -1) return
 
 		let targetViewModel = this.treeFacade.getTreeViewModelByIndex(targetIndex)
-		
+
 		const clipboardPaths = this.treeFacade.getClipboardPaths() ?? []
 		const isPastingOnSelf = clipboardPaths.includes(targetViewModel.path)
 
@@ -641,13 +637,14 @@ export class CommandManager {
 		this.tabEditorFacade.replaceBox.style.display = showReplace ? "flex" : "none"
 		this.tabEditorFacade.findReplaceOpen = true
 
-		if (showReplace) this.tabEditorFacade.replaceInput.focus()
-		else this.tabEditorFacade.findInput.focus()
+		if (showReplace) this.tabEditorFacade.replaceInput.select()
+		else this.tabEditorFacade.findInput.select()
 
 		this.performFind(this.tabEditorFacade.findDirection)
 	}
 
 	performSearchQueryChanged(query: string) {
+		if (query === this.tabEditorFacade.searchQuery) return
 		this.tabEditorFacade.searchQuery = query
 		this.performFind(this.tabEditorFacade.findDirection)
 	}

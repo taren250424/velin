@@ -70,6 +70,22 @@ export class TabEditorView {
 					const newState = view.state.apply(tr)
 					view.updateState(newState)
 
+					if (tr.scrolledIntoView) {
+						const { from } = newState.selection
+						const coords = view.coordsAtPos(from)
+
+						let scrollEl: Element | null = view.dom.parentElement
+						while (scrollEl) {
+							const { overflowY } = window.getComputedStyle(scrollEl)
+							if (overflowY === "auto" || overflowY === "scroll") break
+							scrollEl = scrollEl.parentElement
+						}
+
+						const target = scrollEl ?? document.documentElement
+						const box = target.getBoundingClientRect()
+						target.scrollTop = coords.top - box.top + target.scrollTop - target.clientHeight / 2
+					}
+
 					if (tr.docChanged) {
 						if (this._suppressInputEvent) return
 						onInput(this)
@@ -123,7 +139,7 @@ export class TabEditorView {
 	//
 
 	undoEditor() {
-		this._editor!.action(ctx => {
+		this._editor!.action((ctx) => {
 			const view = ctx.get(editorViewCtx)
 			const { state, dispatch } = view
 			undo(state, dispatch)
@@ -131,7 +147,7 @@ export class TabEditorView {
 	}
 
 	redoEditor() {
-		this._editor!.action(ctx => {
+		this._editor!.action((ctx) => {
 			const view = ctx.get(editorViewCtx)
 			const { state, dispatch } = view
 			redo(state, dispatch)
@@ -297,11 +313,12 @@ export class TabEditorView {
 		const view = this._editor!.ctx.get(editorViewCtx)
 		const state = view.state
 
-		const match = matches[currentIndex]
-		const tr = state.tr.setSelection(TextSelection.create(state.doc, match.from, match.to))
-		view.dispatch(tr)
-
 		this.applySearchHighlight(view)
+
+		const match = matches[currentIndex]
+		const tr = state.tr.setSelection(TextSelection.create(state.doc, match.from, match.to)).scrollIntoView()
+
+		view.dispatch(tr)
 	}
 
 	applySearchHighlight(view: EditorView) {
@@ -371,12 +388,12 @@ export class TabEditorView {
 		this._editor!.action((ctx) => {
 			const view = ctx.get(editorViewCtx)
 			const state = view.state
-			
+
 			const matches = this.findAllMatches(searchText)
 			if (!matches.length) return
-			
+
 			let tr = state.tr
-			
+
 			// Replace backwards to avoid shifting positional indices for upcoming matches
 			for (let i = matches.length - 1; i >= 0; i--) {
 				const { from, to } = matches[i]
