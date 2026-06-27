@@ -337,9 +337,11 @@ export class CommandManager {
 
 	async _openTabEditorAfterCreate(filePath: string, cmd: CreateCommand) {
 		await this.performOpenFile(filePath)
+		this.focusManager.setFocusedTask("editor")
 		const tabView = this.tabEditorFacade.getTabEditorViewByPath(filePath)
 		cmd.setOpenedTabId(tabView.getId())
 	}
+
 
 	//
 

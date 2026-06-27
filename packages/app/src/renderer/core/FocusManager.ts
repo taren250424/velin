@@ -14,13 +14,17 @@ export class FocusManager {
 		return this.focusedZone
 	}
 
+	setFocusedTask(task: Task) {
+		this.focusedTask = task
+	}
+
 	getFocusedTask() {
 		const el = document.activeElement
-		if (!el) return "none"
+		if (!el) return this.focusedTask
 
 		const activeItem = UI_ZONES_VALUES.find((item) => el.closest(item.dom))
-		if (!activeItem || activeItem.task === "") return this.focusedTask
+		if (activeItem && activeItem.task !== "") return activeItem.task as Task
 
-		return activeItem.task as Task
+		return this.focusedTask
 	}
 }

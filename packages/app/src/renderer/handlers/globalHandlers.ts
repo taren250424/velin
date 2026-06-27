@@ -1,5 +1,5 @@
 import { CUSTOM_EVENTS } from "@renderer/constants"
-import { FocusManager, ShortcutRegistry, UI_ZONES_VALUES } from "@renderer/core"
+import { FocusManager, ShortcutRegistry, UI_ZONES_VALUES, type Task } from "@renderer/core"
 import type { Dispatcher } from "@renderer/dispatch"
 import { EventEmitter } from "events"
 
@@ -32,7 +32,13 @@ function bindDocumentMousedownEvnet(focusManager: FocusManager, emitter: EventEm
 		const target = e.target as HTMLElement
 
 		const activeItem = UI_ZONES_VALUES.find((item) => target.closest(item.dom))
-		if (activeItem) focusManager.setFocusedZone(activeItem.id)
+		if (activeItem) {
+			focusManager.setFocusedZone(activeItem.id)
+			// Update focusedTask only when the clicked zone has a task.
+			// For zones without a task (e.g. MENU_ITEM, WINDOW),
+			// keep the previously focused task.
+			if (activeItem.task !== "") focusManager.setFocusedTask(activeItem.task as Task)
+		}
 
 		UI_ZONES_VALUES.forEach((item) => {
 			if (item !== activeItem) {
