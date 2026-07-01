@@ -232,12 +232,12 @@ function _moveFocus(e: KeyboardEvent, treeFacade: TreeFacade, lastIndex: number,
 
 function bindMousedownEventsForDrag(emitter: EventEmitter, treeFacade: TreeFacade) {
 	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.DEFAULT, (e) => {
+		const target = e.target as HTMLElement
+		const node = target.closest(DOM.SELECTOR_TREE_NODE) as HTMLElement
+		if (!node) return
+
 		let count = treeFacade.getSelectedIndices().length
 		if (count === 0) {
-			const target = e.target as HTMLElement
-			const node = target.closest(DOM.SELECTOR_TREE_NODE) as HTMLElement
-			if (!node) return
-
 			const path = node.dataset[DOM.DATASET_ATTR_TREE_PATH]!
 			const idx = treeFacade.getFlattenIndexByPath(path)!
 			treeFacade.lastSelectedIndex = idx

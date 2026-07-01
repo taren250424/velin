@@ -344,7 +344,11 @@ export class TreeFacade {
 			? currentWrapper.dataset[DOM.DATASET_ATTR_TREE_PATH]!
 			: (currentWrapper.querySelector(DOM.SELECTOR_TREE_NODE) as HTMLElement).dataset[DOM.DATASET_ATTR_TREE_PATH]!
 
-		let targetViewModel = this.getTreeViewModelByPath(initialPath)!
+		let targetViewModel = this.getTreeViewModelByPath(initialPath)
+		if (!targetViewModel) {
+			this.clearDrag()
+			return
+		}
 
 		if (!targetViewModel.directory) {
 			const currentIndex = this.getFlattenIndexByPath(initialPath)!
