@@ -53,7 +53,7 @@ describe("FileService.newTab", () => {
 		fakeFileManager.setPathExistence(tabSessionPath, true)
 		await fakeTabRepository.setTabSession({
 			activatedId: -1,
-			data: [{ id: 5, filePath: "file.md" }],
+			data: [{ id: 5, filePath: "file.md", isModified: false }],
 		})
 
 		// When.
@@ -102,8 +102,8 @@ describe("FileService.openFile", () => {
 		fakeTabRepository.setTabSession({
 			activatedId: 0,
 			data: [
-				{ id: 0, filePath: "path1" },
-				{ id: 1, filePath: "path2" },
+				{ id: 0, filePath: "path1", isModified: false },
+				{ id: 1, filePath: "path2", isModified: false },
 			],
 		})
 
@@ -125,8 +125,8 @@ describe("FileService.openFile", () => {
 		fakeTabRepository.setTabSession({
 			activatedId: 0,
 			data: [
-				{ id: 0, filePath: "path1" },
-				{ id: 1, filePath: "path2" },
+				{ id: 0, filePath: "path1", isModified: false },
+				{ id: 1, filePath: "path2", isModified: false },
 			],
 		})
 
@@ -270,7 +270,7 @@ describe("FileService.save", () => {
 		fakeFileManager.setPathExistence(tabSessionPath, true)
 		await fakeTabRepository.setTabSession({
 			activatedId: 1,
-			data: [{ id: data.id, filePath: data.filePath }],
+			data: [{ id: data.id, filePath: data.filePath, isModified: false }],
 		})
 
 		// When.
@@ -290,7 +290,7 @@ describe("FileService.save", () => {
 		fakeFileManager.setPathExistence(tabSessionPath, true)
 		await fakeTabRepository.setTabSession({
 			activatedId: 1,
-			data: [{ id: data.id, filePath: data.filePath }],
+			data: [{ id: data.id, filePath: data.filePath, isModified: false }],
 		})
 
 		// When.
@@ -347,7 +347,7 @@ describe("FileService.saveAs", () => {
 		fakeFileManager.setPathExistence(tabSessionPath, true)
 		await fakeTabRepository.setTabSession({
 			activatedId: 1,
-			data: [{ id: data.id, filePath: data.filePath }],
+			data: [{ id: data.id, filePath: data.filePath, isModified: false }],
 		})
 
 		// When.
@@ -390,7 +390,7 @@ describe("FileService.saveAll", () => {
 		})
 		await fakeTabRepository.setTabSession({
 			activatedId: copiedDto.activatedId,
-			data: copiedDto.data.map(({ id, filePath }) => ({ id, filePath })),
+			data: copiedDto.data.map(({ id, filePath }) => ({ id, filePath, isModified: false })),
 		})
 		const spy = vi.spyOn(fakeFileManager, "write")
 
@@ -421,7 +421,7 @@ describe("FileService.saveAll", () => {
 		})
 		await fakeTabRepository.setTabSession({
 			activatedId: copiedDto.activatedId,
-			data: copiedDto.data.map(({ id, filePath }) => ({ id, filePath })),
+			data: copiedDto.data.map(({ id, filePath }) => ({ id, filePath, isModified: false })),
 		})
 		const spy = vi.spyOn(fakeFileManager, "write")
 

@@ -35,13 +35,13 @@ async function syncTab(
 		const { id, isModified, filePath, fileName, content } = tab
 
 		if (!isModified) {
-			data.push({ id: id, filePath: filePath })
+			data.push({ id: id, filePath: filePath, isModified: false })
 			continue
 		}
 
 		const confirm = await dialogManager.showConfirmDialog(`Do you want to save ${fileName} file?`)
 		if (!confirm) {
-			data.push({ id: id, filePath: filePath })
+			data.push({ id: id, filePath: filePath, isModified: false })
 			continue
 		}
 
@@ -49,15 +49,15 @@ async function syncTab(
 			const result = await dialogManager.showSaveDialog(mainWindow, fileName)
 
 			if (result.canceled || !result.filePath) {
-				data.push({ id: id, filePath: filePath })
+				data.push({ id: id, filePath: filePath, isModified: false })
 			} else {
 				await fileManager.write(result.filePath, content)
 
-				data.push({ id: id, filePath: result.filePath })
+				data.push({ id: id, filePath: result.filePath, isModified: false })
 			}
 		} else if (filePath) {
 			await fileManager.write(filePath, content)
-			data.push({ id: id, filePath: filePath })
+			data.push({ id: id, filePath: filePath, isModified: false })
 		}
 	}
 

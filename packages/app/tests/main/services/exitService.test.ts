@@ -44,6 +44,7 @@ describe("Exit Service", () => {
 			data: copiedTabEditorDto.data.map(({ id, filePath }) => ({
 				id,
 				filePath,
+				isModified: false,
 			})),
 		}
 		await fakeTabRepository.setTabSession(model)
