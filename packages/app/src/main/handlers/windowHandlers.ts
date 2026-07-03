@@ -6,14 +6,14 @@ import { electronAPI } from "@shared/constants/electronAPI/electronAPI"
 import { syncWindowBoundSession, syncWindowMaximizeSession } from "../actions/windowActions"
 
 export default function registerWindowHandlers(mainWindow: BrowserWindow, windowRepository: IWindowRepository) {
-	ipcMain.on(electronAPI.events.rendererToMain.requestMinimizeWindow, (e) => {
+	ipcMain.on(electronAPI.events.rendererToMain.requestMinimizeWindow, () => {
 		mainWindow.minimize()
 	})
-	ipcMain.on(electronAPI.events.rendererToMain.requestMaximizeWindow, (e) => {
+	ipcMain.on(electronAPI.events.rendererToMain.requestMaximizeWindow, () => {
 		mainWindow.maximize()
 		syncWindowMaximizeSession(mainWindow, windowRepository)
 	})
-	ipcMain.on(electronAPI.events.rendererToMain.requestUnmaximizeWindow, (e) => {
+	ipcMain.on(electronAPI.events.rendererToMain.requestUnmaximizeWindow, () => {
 		mainWindow.unmaximize()
 		syncWindowMaximizeSession(mainWindow, windowRepository)
 	})

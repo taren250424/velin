@@ -27,8 +27,8 @@ describe("Settings Service - Sync Settings Session", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
 		fakeSettingsRepository = new FakeSettingsRepository(settingsSessionPath, fakeFileManager)
-		fakeSettingsUtils = new FakeSettingsUtils(fakeFileManager)
-		settingsService = new SettingsService(fakeFileManager, fakeSettingsUtils, fakeSettingsRepository)
+		fakeSettingsUtils = new FakeSettingsUtils()
+		settingsService = new SettingsService(fakeSettingsUtils, fakeSettingsRepository)
 	})
 
 	test("should synchronize settings session from renderer and save it", async () => {

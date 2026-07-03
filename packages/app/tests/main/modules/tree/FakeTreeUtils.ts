@@ -1,12 +1,10 @@
 import type ITreeUtils from "@main/modules/contracts/ITreeUtils"
 import type { TreeDto } from "@shared/dto/TreeDto"
 import type TreeSessionModel from "@main/models/TreeSessionModel"
-import type IFileManager from "@main/modules/contracts/IFileManager"
 
 export default class FakeTreeUtils implements ITreeUtils {
 	private tree: TreeDto | null = null
 
-	constructor(private fakeFileManager: IFileManager) {}
 
 	setTree(tree: TreeDto) {
 		this.tree = tree

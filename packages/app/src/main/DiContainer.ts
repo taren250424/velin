@@ -108,15 +108,13 @@ export default class DIContainer {
 
 			const tabUtils = container.get<ITabUtils>(DI_KEYS.TabUtils)
 			const treeUtils = container.get<ITreeUtils>(DI_KEYS.TreeUtils)
-			const settingsUtils = container.get<ITabUtils>(DI_KEYS.SettingsUtils)
 			const tabRepository = container.get<ITabRepository>(DI_KEYS.TabRepository)
 			const treeRepository = container.get<ITreeRepository>(DI_KEYS.TreeRepository)
-			const settingsRepository = container.get<ISettingsRepository>(DI_KEYS.SettingsRepository)
 
 			container
 				.bind<IFileWatcher>(DI_KEYS.FileWatcher)
 				.toDynamicValue(
-					() => new FileWatcher(this._mainWindow!, fileManager, tabUtils, treeUtils, tabRepository, treeRepository)
+					() => new FileWatcher(this._mainWindow!, tabUtils, treeUtils, tabRepository, treeRepository)
 				)
 				.inSingletonScope()
 

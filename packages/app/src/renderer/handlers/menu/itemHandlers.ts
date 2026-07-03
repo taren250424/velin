@@ -7,7 +7,7 @@ export function handleMenuItems(emitter: EventEmitter, menuElements: MenuElement
 	const { menuItems } = menuElements
 
 	menuItems.forEach((item) => {
-		item.addEventListener("click", (e) => {
+		item.addEventListener("click", () => {
 			menuItems.forEach((i) => {
 				if (i !== item) i.classList.remove(CLASS_SELECTED)
 			})
@@ -24,7 +24,7 @@ export function handleMenuItems(emitter: EventEmitter, menuElements: MenuElement
 		})
 	})
 
-	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.OUT.MENU_ITEM, (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.OUT.MENU_ITEM, () => {
 		menuItems.forEach((i) => i.classList.remove(DOM.CLASS_SELECTED))
 		// const target = e.target as HTMLElement
 		// const isInMenuItem = !!target.closest(DOM.SELECTOR_MENU_ITEM)

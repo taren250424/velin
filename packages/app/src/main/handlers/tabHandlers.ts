@@ -4,7 +4,7 @@ import { electronAPI } from "@shared/constants/electronAPI/electronAPI"
 import TabService from "@main/services/TabService"
 
 export default function registerTabHandlers(mainWindow: BrowserWindow, tabService: TabService) {
-	ipcMain.handle(electronAPI.events.rendererToMain.closeTab, async (e, data: TabEditorDto) => {
+	ipcMain.handle(electronAPI.events.rendererToMain.closeTab, async (_e, data: TabEditorDto) => {
 		const result = await tabService.closeTab(data, mainWindow)
 		return {
 			result: result,
@@ -14,7 +14,7 @@ export default function registerTabHandlers(mainWindow: BrowserWindow, tabServic
 
 	ipcMain.handle(
 		electronAPI.events.rendererToMain.closeOtherTabs,
-		async (e, exceptData: TabEditorDto, allData: TabEditorsDto) => {
+		async (_e, exceptData: TabEditorDto, allData: TabEditorsDto) => {
 			const resultArr = await tabService.closeOtherTabs(exceptData, allData, mainWindow)
 			return {
 				result: true,
@@ -25,7 +25,7 @@ export default function registerTabHandlers(mainWindow: BrowserWindow, tabServic
 
 	ipcMain.handle(
 		electronAPI.events.rendererToMain.closeTabsToRight,
-		async (e, referenceData: TabEditorDto, allData: TabEditorsDto) => {
+		async (_e, referenceData: TabEditorDto, allData: TabEditorsDto) => {
 			const resultArr = await tabService.closeTabsToRight(referenceData, allData, mainWindow)
 			return {
 				result: true,
@@ -34,7 +34,7 @@ export default function registerTabHandlers(mainWindow: BrowserWindow, tabServic
 		}
 	)
 
-	ipcMain.handle(electronAPI.events.rendererToMain.closeAllTabs, async (e, data: TabEditorsDto) => {
+	ipcMain.handle(electronAPI.events.rendererToMain.closeAllTabs, async (_e, data: TabEditorsDto) => {
 		const resultArr = await tabService.closeAllTabs(data, mainWindow)
 		return {
 			result: true,
@@ -42,7 +42,7 @@ export default function registerTabHandlers(mainWindow: BrowserWindow, tabServic
 		}
 	})
 
-	ipcMain.handle(electronAPI.events.rendererToMain.syncTabSessionFromRenderer, async (e, data: TabEditorsDto) => {
+	ipcMain.handle(electronAPI.events.rendererToMain.syncTabSessionFromRenderer, async (_e, data: TabEditorsDto) => {
 		return await tabService.syncTabSession(data)
 	})
 }

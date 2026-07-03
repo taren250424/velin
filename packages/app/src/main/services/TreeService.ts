@@ -43,11 +43,10 @@ export default class TreeService {
 					await this.fileWatcher.watch(session.path)
 				}
 
-				const oldPath = nodeToUpdate.path
 				nodeToUpdate.path = finalNewPath
 				nodeToUpdate.name = path.basename(finalNewPath)
 
-				this._recursivelyUpdateChildrenPaths(nodeToUpdate, oldPath)
+				this._recursivelyUpdateChildrenPaths(nodeToUpdate)
 
 				await this.treeRepository.writeTreeSession(session)
 
@@ -73,7 +72,7 @@ export default class TreeService {
 		return null
 	}
 
-	private _recursivelyUpdateChildrenPaths(parentNode: TreeSessionModel | TreeDto, oldParentPath: string): void {
+	private _recursivelyUpdateChildrenPaths(parentNode: TreeSessionModel | TreeDto): void {
 		if (!parentNode.children) return
 
 		for (const child of parentNode.children) {
@@ -83,7 +82,7 @@ export default class TreeService {
 			child.name = childBaseName
 
 			if (child.children && child.children.length > 0) {
-				this._recursivelyUpdateChildrenPaths(child, oldChildPath)
+				this._recursivelyUpdateChildrenPaths(child)
 			}
 		}
 	}

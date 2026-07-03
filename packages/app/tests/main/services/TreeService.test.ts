@@ -5,15 +5,13 @@ import path from "path"
 import { beforeEach, describe, expect, test } from "vitest"
 import FakeFileManager from "../modules/fs/FakeFileManager"
 import FakeTreeUtils from "../modules/tree/FakeTreeUtils"
-import FakeTabRepository from "../modules/tab/FakeTabRepository"
 import FakeTreeRepository from "../modules/tree/FakeTreeRepository"
 import FakeFileWatcher from "../modules/fs/FakeFileWatcher"
 
-import { tabSessionPath, treeSessionPath, treeDto, treeSessionModel } from "../data/test_data"
+import { treeSessionPath, treeDto, treeSessionModel } from "../data/test_data"
 
 let fakeFileManager: FakeFileManager
 let fakeTreeUtils: FakeTreeUtils
-let fakeTabRepository: FakeTabRepository
 let fakeTreeRepository: FakeTreeRepository
 let fakeFileWatcher: FakeFileWatcher
 let treeService: TreeService
@@ -42,8 +40,7 @@ function deepCopyTreeDto(dto: TreeDto): TreeDto {
 describe("Tree Service - rename", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
-		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 		fakeFileWatcher = new FakeFileWatcher()
 		treeService = new TreeService(fakeFileManager, fakeTreeUtils, fakeTreeRepository, fakeFileWatcher)
@@ -100,8 +97,7 @@ describe("Tree Service - rename", () => {
 describe("Tree Service - paste", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
-		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 		fakeFileWatcher = new FakeFileWatcher()
 		treeService = new TreeService(fakeFileManager, fakeTreeUtils, fakeTreeRepository, fakeFileWatcher)
@@ -297,8 +293,7 @@ describe("Tree Service - paste", () => {
 describe("Tree Service - create", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
-		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 		fakeFileWatcher = new FakeFileWatcher()
 		treeService = new TreeService(fakeFileManager, fakeTreeUtils, fakeTreeRepository, fakeFileWatcher)
@@ -384,8 +379,7 @@ describe("Tree Service - create", () => {
 describe("Tree Service - syncTreeSessionFromRenderer", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
-		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 		fakeFileWatcher = new FakeFileWatcher()
 		treeService = new TreeService(fakeFileManager, fakeTreeUtils, fakeTreeRepository, fakeFileWatcher)
@@ -411,8 +405,7 @@ describe("Tree Service - syncTreeSessionFromRenderer", () => {
 describe("Tree Service - getSyncedTreeSession", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
-		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 		fakeFileWatcher = new FakeFileWatcher()
 		treeService = new TreeService(fakeFileManager, fakeTreeUtils, fakeTreeRepository, fakeFileWatcher)

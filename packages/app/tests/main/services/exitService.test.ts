@@ -6,14 +6,12 @@ import fakeDialogManager, { setFakeConfirmResult, setFakeSaveDialogResult } from
 import FakeTabRepository from "../modules/tab/FakeTabRepository"
 import FakeTreeRepository from "../modules/tree/FakeTreeRepository"
 import type { TabSessionModel } from "@main/models/TabSessionModel"
-import FakeTreeUtils from "../modules/tree/FakeTreeUtils"
 
 import { tabSessionPath, treeSessionPath, newFilePath, tabEidtorsDto, treeDto } from "../data/test_data"
 
 let fakeMainWindow: FakeMainWindow
 let fakeFileManager: FakeFileManager
 let fakeTabRepository: FakeTabRepository
-let fakeTreeUtils: FakeTreeUtils
 let fakeTreeRepository: FakeTreeRepository
 
 describe("Exit Service", () => {
@@ -21,7 +19,6 @@ describe("Exit Service", () => {
 		fakeMainWindow = new FakeMainWindow()
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 	})
 
@@ -36,7 +33,7 @@ describe("Exit Service", () => {
 			canceled: false,
 			filePath: newFilePath,
 		})
-		copiedTabEditorDto.data.forEach((data, i) => {
+		copiedTabEditorDto.data.forEach((data) => {
 			fakeFileManager.setFilecontent(data.filePath, "dummy")
 		})
 		const model: TabSessionModel = {
@@ -96,7 +93,7 @@ describe("Exit Service", () => {
 			canceled: true,
 			filePath: "",
 		})
-		copiedTabEditorDto.data.forEach((data, i) => {
+		copiedTabEditorDto.data.forEach((data) => {
 			fakeFileManager.setFilecontent(data.filePath, "dummy")
 		})
 		await fakeTreeRepository.setTreeSession({
@@ -145,7 +142,7 @@ describe("Exit Service", () => {
 			canceled: false,
 			filePath: newFilePath,
 		})
-		copiedTabEditorDto.data.forEach((data, i) => {
+		copiedTabEditorDto.data.forEach((data) => {
 			fakeFileManager.setFilecontent(data.filePath, "dummy")
 		})
 		await fakeTreeRepository.setTreeSession({

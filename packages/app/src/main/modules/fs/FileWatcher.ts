@@ -1,5 +1,4 @@
 import type { FSWatcher } from "chokidar"
-import type IFileManager from "../contracts/IFileManager"
 import type ITabUtils from "../contracts/ITabUtils"
 import type ITreeUtils from "../contracts/ITreeUtils"
 import type ITabRepository from "../contracts/ITabRepository"
@@ -27,7 +26,6 @@ export default class FileWatcher {
 
 	constructor(
 		private mainWindow: BrowserWindow,
-		private fileManager: IFileManager,
 		private tabUtils: ITabUtils,
 		private treeUtils: ITreeUtils,
 		private tabRepository: ITabRepository,

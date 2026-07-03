@@ -37,7 +37,7 @@ export default class FakeFileManager implements IFileManager {
 		return buffer.toString(encoding)
 	}
 
-	async read(path: string, encoding: BufferEncoding = "utf8"): Promise<string> {
+	async read(path: string, _encoding: BufferEncoding = "utf8"): Promise<string> {
 		const buffer = await this.getBuffer(path)
 		const content = this.toStringFromBuffer(buffer)
 		return content
@@ -58,7 +58,7 @@ export default class FakeFileManager implements IFileManager {
 		return Array.from(immediateEntries)
 	}
 
-	async write(path: string, data: string, encoding: BufferEncoding = "utf8"): Promise<void> {
+	async write(path: string, data: string, _encoding: BufferEncoding = "utf8"): Promise<void> {
 		this.savedFiles[path] = data
 		this.pathExists[path] = true
 	}

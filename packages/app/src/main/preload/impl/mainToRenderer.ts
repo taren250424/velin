@@ -20,7 +20,7 @@ const mainToRenderer: MainToRendererAPI = {
 	) => {
 		ipcRenderer.on(
 			electronAPI.events.mainToRenderer.session,
-			(e, windowDto, settingsDto, sideDto, tabEditorsDto, treeDto, version) => {
+			(_e, windowDto, settingsDto, sideDto, tabEditorsDto, treeDto, version) => {
 				callback(windowDto, settingsDto, sideDto, tabEditorsDto, treeDto, version)
 			}
 		)
@@ -34,7 +34,7 @@ const mainToRenderer: MainToRendererAPI = {
 	) => {
 		ipcRenderer.on(
 			electronAPI.events.mainToRenderer.syncFromWatch,
-			(e, tabEditorsDto, treeDto, partialUpdates) => {
+			(_e, tabEditorsDto, treeDto, partialUpdates) => {
 				callback(tabEditorsDto, treeDto, partialUpdates)
 			}
 		)

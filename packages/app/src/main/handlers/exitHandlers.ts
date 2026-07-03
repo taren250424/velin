@@ -17,7 +17,7 @@ export default function registerExitHandlers(
 ) {
 	ipcMain.handle(
 		electronAPI.events.rendererToMain.exit,
-		async (e, tabSessionData: TabEditorsDto, treeSessionData: TreeDto) => {
+		async (_e, tabSessionData: TabEditorsDto, treeSessionData: TreeDto) => {
 			await exit(mainWindow, fileManager, dialogManager, tabRepository, treeRepository, tabSessionData, treeSessionData)
 		}
 	)

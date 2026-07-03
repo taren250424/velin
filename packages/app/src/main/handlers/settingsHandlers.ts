@@ -1,10 +1,10 @@
 import type { SettingsDto } from "@shared/dto/SettingsDto"
-import { BrowserWindow, ipcMain } from "electron"
+import { ipcMain } from "electron"
 import { electronAPI } from "@shared/constants/electronAPI/electronAPI"
 import SettingsService from "@main/services/SettingsService"
 
-export default function registerSettingsHandlers(mainWindow: BrowserWindow, settingsService: SettingsService) {
-	ipcMain.handle(electronAPI.events.rendererToMain.syncSettingsSessionFromRenderer, async (e, dto: SettingsDto) => {
+export default function registerSettingsHandlers(settingsService: SettingsService) {
+	ipcMain.handle(electronAPI.events.rendererToMain.syncSettingsSessionFromRenderer, async (_e, dto: SettingsDto) => {
 		await settingsService.syncSettingsSession(dto)
 	})
 }

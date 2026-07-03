@@ -526,7 +526,7 @@ export class TabEditorFacade {
 	}
 
 	applySaveAllResults(tabEditorsDto: TabEditorsDto) {
-		tabEditorsDto.data.forEach((dto, i) => {
+		tabEditorsDto.data.forEach((dto) => {
 			this.applySaveResult(dto)
 		})
 	}

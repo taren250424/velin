@@ -36,7 +36,7 @@ describe("FileService.newTab", () => {
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeFileWatcher = new FakeFileWatcher()
 		fileService = new FileService(
 			fakeFileManager,
@@ -72,7 +72,7 @@ describe("FileService.openFile", () => {
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeFileWatcher = new FakeFileWatcher()
 		fileService = new FileService(
 			fakeFileManager,
@@ -147,7 +147,7 @@ describe("FileService.openDirectory", () => {
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeTreeRepository = new FakeTreeRepository(treeSessionPath, fakeFileManager)
 		fakeFileWatcher = new FakeFileWatcher()
 		fileService = new FileService(
@@ -233,7 +233,7 @@ describe("FileService.save", () => {
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeFileWatcher = new FakeFileWatcher()
 		fileService = new FileService(
 			fakeFileManager,
@@ -310,7 +310,7 @@ describe("FileService.saveAs", () => {
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeFileWatcher = new FakeFileWatcher()
 		fileService = new FileService(
 			fakeFileManager,
@@ -368,7 +368,7 @@ describe("FileService.saveAll", () => {
 		fakeFileManager = new FakeFileManager()
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
 		fakeTabRepository = new FakeTabRepository(tabSessionPath, fakeFileManager)
-		fakeTreeUtils = new FakeTreeUtils(fakeFileManager)
+		fakeTreeUtils = new FakeTreeUtils()
 		fakeFileWatcher = new FakeFileWatcher()
 		fileService = new FileService(
 			fakeFileManager,

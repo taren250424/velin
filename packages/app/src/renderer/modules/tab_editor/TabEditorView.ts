@@ -27,10 +27,8 @@ export class TabEditorView {
 
 	private _editorBox: HTMLElement
 	private _editor: Editor | null
-	private _isBinary: boolean
 
 	private _onInput?: (view: TabEditorView) => void
-	private _onBlur?: (view: TabEditorView) => void
 
 	private _suppressInputEvent = false
 
@@ -52,9 +50,7 @@ export class TabEditorView {
 		this._tabButton = tabButton
 		this._editorBox = editorBox
 		this._editor = editor
-		this._isBinary = isBinary
 		this._onInput = onInput
-		this._onBlur = onBlur
 
 		if (!isBinary) this._initEditorObserver(onInput, onBlur)
 	}

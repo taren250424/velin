@@ -1,4 +1,3 @@
-import type IFileManager from "../contracts/IFileManager"
 import type ISettingsUtils from "../contracts/ISettingsUtils"
 import type { SettingsDto, SettingEditorDto, SettingThemeDto } from "@shared/dto/SettingsDto"
 import type {
@@ -6,12 +5,10 @@ import type {
 	SettingEditorSessionModel,
 	SettingThemeSessionModel,
 } from "@main/models/SettingsSessionModel"
-import { inject, injectable } from "inversify"
-import DI_KEYS from "../../constants/di_keys"
+import { injectable } from "inversify"
 
 @injectable()
 export default class SettingsUtils implements ISettingsUtils {
-	constructor(@inject(DI_KEYS.FileManager) private readonly fileManager: IFileManager) {}
 
 	toSettingsDto(session: SettingsSessionModel): SettingsDto {
 		return {

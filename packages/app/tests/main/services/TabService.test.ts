@@ -161,7 +161,7 @@ describe("Tab Service - closeOtherTabs", () => {
 		const exceptData: TabEditorDto = copiedDto.data[1]
 
 		// When.
-		const response = await tabService.closeOtherTabs(exceptData, copiedDto, fakeMainWindow as any)
+		await tabService.closeOtherTabs(exceptData, copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(3)
@@ -189,7 +189,7 @@ describe("Tab Service - closeOtherTabs", () => {
 		const exceptData: TabEditorDto = copiedDto.data[1]
 
 		// When.
-		const response = await tabService.closeOtherTabs(exceptData, copiedDto, fakeMainWindow as any)
+		await tabService.closeOtherTabs(exceptData, copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(1)
@@ -219,7 +219,7 @@ describe("Tab Service - closeOtherTabs", () => {
 		const exceptData: TabEditorDto = copiedDto.data[1]
 
 		// When.
-		const response = await tabService.closeOtherTabs(exceptData, copiedDto, fakeMainWindow as any)
+		await tabService.closeOtherTabs(exceptData, copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(2)
@@ -256,7 +256,7 @@ describe("Tab Service - closeTabsToRight", () => {
 		const refData: TabEditorDto = copiedDto.data[1]
 
 		// When.
-		const response = await tabService.closeTabsToRight(refData, copiedDto, fakeMainWindow as any)
+		await tabService.closeTabsToRight(refData, copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(3)
@@ -284,7 +284,7 @@ describe("Tab Service - closeTabsToRight", () => {
 		const refData: TabEditorDto = copiedDto.data[1]
 
 		// When.
-		const response = await tabService.closeTabsToRight(refData, copiedDto, fakeMainWindow as any)
+		await tabService.closeTabsToRight(refData, copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(1)
@@ -350,7 +350,7 @@ describe("Tab Service - closeAllTabs", () => {
 		const spy = vi.spyOn(fakeFileManager, "write")
 
 		// When.
-		const response = await tabService.closeAllTabs(copiedDto, fakeMainWindow as any)
+		await tabService.closeAllTabs(copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(3)
@@ -375,7 +375,7 @@ describe("Tab Service - closeAllTabs", () => {
 		const spy = vi.spyOn(fakeFileManager, "write")
 
 		// When.
-		const response = await tabService.closeAllTabs(copiedDto, fakeMainWindow as any)
+		await tabService.closeAllTabs(copiedDto, fakeMainWindow as any)
 
 		// Then.
 		expect(spy).toHaveBeenCalledTimes(1)

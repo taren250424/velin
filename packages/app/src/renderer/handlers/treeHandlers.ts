@@ -35,12 +35,12 @@ function bindMousedownEvents(emitter: EventEmitter, treeFacade: TreeFacade) {
 		treeTop,
 	} = treeFacade.renderer.elements
 
-	treeNodeContainer.addEventListener("mousedown", (e) => {
+	treeNodeContainer.addEventListener("mousedown", () => {
 		treeFacade.blur(treeFacade.lastSelectedIndex)
 		treeFacade.blur(treeFacade.contextTreeIndex)
 	})
 
-	treeTop.addEventListener("mousedown", (e) => {
+	treeTop.addEventListener("mousedown", () => {
 		treeFacade.blur(treeFacade.lastSelectedIndex)
 		treeFacade.blur(treeFacade.contextTreeIndex)
 	})
@@ -140,7 +140,7 @@ function bindContextmenuToggleEvents(emitter: EventEmitter, treeFacade: TreeFaca
 		treeFacade.handleShowContextmenu(e)
 	})
 
-	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.OUT.TREE_CONTEXTMENU, (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.OUT.TREE_CONTEXTMENU, () => {
 		treeFacade.handleHideContextmenu()
 	})
 }
@@ -271,7 +271,7 @@ function bindMousemoveEventsForDrag(emitter: EventEmitter, treeFacade: TreeFacad
 }
 
 function bindMouseupEventsForDrag(dispatcher: Dispatcher, emitter: EventEmitter, treeFacade: TreeFacade) {
-	emitter.on(CUSTOM_EVENTS.MOUSE_UP.DEFAULT, async (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_UP.DEFAULT, async () => {
 		if (!treeFacade.isDrag()) {
 			treeFacade.setMouseDown(false)
 			return
@@ -291,7 +291,7 @@ function bindMouseupEventsForDrag(dispatcher: Dispatcher, emitter: EventEmitter,
 }
 
 function bindMouseleaveEventsForDrag(emitter: EventEmitter, treeFacade: TreeFacade) {
-	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, () => {
 		if (treeFacade.isDrag()) {
 			treeFacade.clearDrag()
 		}

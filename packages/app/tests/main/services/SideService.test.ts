@@ -19,7 +19,7 @@ describe("Side Service - Sync Side Session", () => {
 	beforeEach(() => {
 		fakeFileManager = new FakeFileManager()
 		fakeSideRepository = new FakeSideRepository(sideSessionPath, fakeFileManager)
-		sideService = new SideService(fakeFileManager, fakeSideRepository)
+		sideService = new SideService(fakeSideRepository)
 	})
 
 	test("should synchronize side session from renderer and save it", async () => {

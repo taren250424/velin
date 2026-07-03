@@ -1,4 +1,3 @@
-import type IFileManager from "@main/modules/contracts/IFileManager"
 import type ISideRepository from "@main/modules/contracts/ISideRepository"
 import type SideSessionModel from "@main/models/SideSessionModel"
 import type { SideDto } from "@shared/dto/SideDto"
@@ -7,7 +6,6 @@ import DI_KEYS from "../constants/di_keys"
 
 export default class SideService {
 	constructor(
-		@inject(DI_KEYS.FileManager) private readonly fileManager: IFileManager,
 		@inject(DI_KEYS.SideRepository)
 		private readonly sideRepository: ISideRepository
 	) {}

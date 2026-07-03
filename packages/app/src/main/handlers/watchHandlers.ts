@@ -1,9 +1,9 @@
 import type IFileWatcher from "@main/modules/contracts/IFileWatcher"
-import { BrowserWindow, ipcMain } from "electron"
+import { ipcMain } from "electron"
 import { electronAPI } from "@shared/constants/electronAPI/electronAPI"
 
-export default function registerWatchHandlers(mainWindow: BrowserWindow, fileWatcher: IFileWatcher) {
-	ipcMain.handle(electronAPI.events.rendererToMain.setWatchSkipState, (e, state) => {
+export default function registerWatchHandlers(fileWatcher: IFileWatcher) {
+	ipcMain.handle(electronAPI.events.rendererToMain.setWatchSkipState, (_e, state) => {
 		fileWatcher.setSkipState(state)
 	})
 }

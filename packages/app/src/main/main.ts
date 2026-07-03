@@ -117,11 +117,11 @@ const bootstrapApp = () => {
 	registerFileHandlers(mainWindow, fileService)
 	registerExitHandlers(mainWindow, fileManager, dialogManager, tabRepository, treeRepository)
 	registerTabHandlers(mainWindow, tabService)
-	registerTreeHandlers(mainWindow, treeService)
-	registerSideHandlers(mainWindow, sideService)
+	registerTreeHandlers(treeService)
+	registerSideHandlers(sideService)
 	registerEditHandlers()
-	registerWatchHandlers(mainWindow, fileWatcher)
-	registerSettingsHandlers(mainWindow, settingsService)
+	registerWatchHandlers(fileWatcher)
+	registerSettingsHandlers(settingsService)
 
 	loadUrl(mainWindow)
 }

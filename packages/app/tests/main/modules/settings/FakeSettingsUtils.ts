@@ -3,12 +3,10 @@ import type {
 	SettingEditorSessionModel,
 	SettingThemeSessionModel,
 } from "@main/models/SettingsSessionModel"
-import type IFileManager from "@main/modules/contracts/IFileManager"
 import type ISettingsUtils from "@main/modules/contracts/ISettingsUtils"
 import type { SettingsDto, SettingEditorDto, SettingThemeDto } from "@shared/dto/SettingsDto"
 
 export default class FakeSettingsUtils implements ISettingsUtils {
-	constructor(private fakeFileManager: IFileManager) {}
 
 	toSettingsDto(session: SettingsSessionModel): SettingsDto {
 		return {

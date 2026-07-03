@@ -27,7 +27,7 @@ export default function registerLoadHandlers(
 	tabUtils: ITabUtils,
 	treeUtils: ITreeUtils
 ) {
-	ipcMain.on(electronAPI.events.rendererToMain.loadedRenderer, async (e) => {
+	ipcMain.on(electronAPI.events.rendererToMain.loadedRenderer, async () => {
 		loadedRenderer(
 			mainWindow,
 			fileManager,

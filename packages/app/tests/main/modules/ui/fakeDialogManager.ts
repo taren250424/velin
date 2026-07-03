@@ -31,7 +31,7 @@ export function setFakeOpenDirectoryDialogResult(result: Electron.OpenDialogRetu
 }
 
 const fakeDialogManager: IDialogManager = {
-	async showConfirmDialog(message: string): Promise<boolean> {
+	async showConfirmDialog(_message: string): Promise<boolean> {
 		return fakeConfirmResult
 	},
 
@@ -43,7 +43,7 @@ const fakeDialogManager: IDialogManager = {
 		return fakeOpenDirectoryDialogResult
 	},
 
-	async showSaveDialog(mainWindow: BrowserWindow, fileName = ""): Promise<Electron.SaveDialogReturnValue> {
+	async showSaveDialog(_mainWindow: BrowserWindow, _fileName = ""): Promise<Electron.SaveDialogReturnValue> {
 		return fakeSaveDialogResult
 	},
 }

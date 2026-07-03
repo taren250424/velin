@@ -11,9 +11,7 @@ export const windowSessionPath = "/fake/path/windowSession.json"
 const preFilePath = "preFilePath"
 export const newFilePath = "newFilePath"
 const preFileName = "preFileName"
-const newFileName = "newFileName"
 const preFileContent = "preFileContent"
-const newFileContent = "newFileContent"
 
 export const emptyFilePathTabEditorDto: TabEditorDto = {
 	id: 0,

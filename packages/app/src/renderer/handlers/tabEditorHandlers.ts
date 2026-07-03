@@ -57,7 +57,7 @@ function bindContextmenuToggleEvents(emitter: EventEmitter, tabEditorFacade: Tab
 		tabEditorFacade.handleShowContextmenu(e)
 	})
 
-	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.OUT.TAB_CONTEXTMENU, (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_DOWN.OUT.TAB_CONTEXTMENU, () => {
 		tabEditorFacade.handleHideContextmenu()
 	})
 }
@@ -182,7 +182,7 @@ function bindMousemoveEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabE
 }
 
 function bindMouseupEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabEditorFacade) {
-	emitter.on(CUSTOM_EVENTS.MOUSE_UP.DEFAULT, async (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_UP.DEFAULT, async () => {
 		if (!tabEditorFacade.isDrag()) {
 			tabEditorFacade.setMouseDown(false)
 			return
@@ -202,7 +202,7 @@ function bindMouseupEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabEdi
 }
 
 function bindMouseleaveEventsForDrag(emitter: EventEmitter, tabEditorFacade: TabEditorFacade) {
-	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, () => {
 		if (tabEditorFacade.isDrag()) {
 			tabEditorFacade.clearDrag()
 		}

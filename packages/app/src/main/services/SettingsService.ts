@@ -1,4 +1,3 @@
-import type IFileManager from "@main/modules/contracts/IFileManager"
 import type ISettingsRepository from "@main/modules/contracts/ISettingsRepository"
 import type ISettingsUtils from "@main/modules/contracts/ISettingsUtils"
 import type { SettingsDto } from "@shared/dto/SettingsDto"
@@ -7,7 +6,6 @@ import DI_KEYS from "../constants/di_keys"
 
 export default class SettingsService {
 	constructor(
-		@inject(DI_KEYS.FileManager) private readonly fileManager: IFileManager,
 		@inject(DI_KEYS.SettingsUtils)
 		private readonly settingsUtils: ISettingsUtils,
 		@inject(DI_KEYS.SettingsRepository)

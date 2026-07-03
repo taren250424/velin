@@ -5,7 +5,7 @@ import { EventEmitter } from "events"
 export function handleSide(emitter: EventEmitter, sideFacade: SideFacade) {
 	const { resizer } = sideFacade.renderer.elements
 
-	resizer.addEventListener("mousedown", (e) => {
+	resizer.addEventListener("mousedown", () => {
 		if (!sideFacade.isSideOpen()) return
 		sideFacade.initDrag()
 	})
@@ -27,7 +27,7 @@ export function handleSide(emitter: EventEmitter, sideFacade: SideFacade) {
 		sideFacade.syncSession()
 	})
 
-	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, (e) => {
+	emitter.on(CUSTOM_EVENTS.MOUSE_LEAVE.DEFAULT, () => {
 		if (!sideFacade.isDragging()) return
 		sideFacade.clearDrag()
 	})
