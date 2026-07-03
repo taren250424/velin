@@ -4,6 +4,10 @@ import { FocusManager } from "./index"
 
 @injectable()
 export class ShortcutRegistry {
+	// Navigation keys may fire repeatedly while held; every other shortcut
+	// ignores key auto-repeat so a held key (e.g. Delete) cannot burst commands.
+	private static readonly REPEATABLE_KEYS = new Set(["ARROWUP", "ARROWDOWN", "Shift+ARROWUP", "Shift+ARROWDOWN"])
+
 	private shortcutMap = new Map<string, (e: KeyboardEvent) => any>()
 
 	constructor(@inject(DI.FocusManager) private readonly focusManager: FocusManager) {}
@@ -24,6 +28,8 @@ export class ShortcutRegistry {
 			if (task !== "editor") {
 				e.preventDefault()
 			}
+
+			if (e.repeat && !ShortcutRegistry.REPEATABLE_KEYS.has(key)) return
 
 			handler(e)
 		}

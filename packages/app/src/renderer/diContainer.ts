@@ -4,6 +4,7 @@ import { Container } from "inversify"
 
 import { FocusManager } from "./core/FocusManager"
 import { ShortcutRegistry } from "./core/ShortcutRegistry"
+import { CommandQueue } from "./core/CommandQueue"
 
 import { MenuElements } from "./modules/menu/MenuElements"
 
@@ -84,6 +85,7 @@ diContainer.bind(DI.InfoElements).to(InfoElements).inSingletonScope()
 
 diContainer.bind(DI.ZoomManager).to(ZoomManager).inSingletonScope()
 
+diContainer.bind(DI.CommandQueue).to(CommandQueue).inSingletonScope()
 diContainer.bind(DI.CommandManager).to(CommandManager).inSingletonScope()
 diContainer.bind(DI.Dispatcher).to(Dispatcher).inSingletonScope()
 diContainer.bind(DI.EventEmitter).to(EventEmitter).inSingletonScope()

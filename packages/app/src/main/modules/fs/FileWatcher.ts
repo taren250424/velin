@@ -14,7 +14,11 @@ import { electronAPI } from "@shared/constants/electronAPI/electronAPI"
 @injectable()
 export default class FileWatcher {
 	private watcher: FSWatcher | null = null
-	private skip = false
+
+	// Counter, not a boolean: commands acquire (true) / release (false) the skip,
+	// so one command's delayed release cannot re-enable the watcher while another
+	// command is still running.
+	private skipCount = 0
 
 	private timer: NodeJS.Timeout | null = null
 	private pendingUpdates: TreePartialUpdate[] = []
@@ -31,7 +35,8 @@ export default class FileWatcher {
 	) {}
 
 	setSkipState(state: boolean) {
-		this.skip = state
+		if (state) this.skipCount++
+		else this.skipCount = Math.max(0, this.skipCount - 1)
 	}
 
 	async watch(dirPath: string) {
@@ -70,7 +75,7 @@ export default class FileWatcher {
 	}
 
 	private _process(changedPath: string, type: "add" | "remove", isDirectory: boolean) {
-		if (this.skip) return
+		if (this.skipCount > 0) return
 
 		this.pendingUpdates.push({ type, path: changedPath, isDirectory })
 

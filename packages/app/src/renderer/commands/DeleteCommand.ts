@@ -15,17 +15,24 @@ export class DeleteCommand implements ICommand {
 	private trashMap: TrashMap[] | null = null
 	private deletedItems: DeletedItemInfo[] = []
 
+	// Captures paths, not indices: indices shift whenever the tree mutates,
+	// so they are re-resolved from paths at apply time instead.
 	constructor(
 		private treeFacade: TreeFacade,
 		private tabEditorFacade: TabEditorFacade,
-		private selectedIndices: number[]
+		private selectedPaths: string[]
 	) {}
 
 	async execute(): Promise<void> {
+		this.deletedItems = []
+
 		const pathsToDelete: string[] = []
 		const idsToDelete: number[] = []
-		for (let i = 0; i < this.selectedIndices.length; i++) {
-			const viewModel = this.treeFacade.getTreeViewModelByIndex(this.selectedIndices[i])
+		for (const path of this.selectedPaths) {
+			const viewModel = this.treeFacade.getTreeViewModelByPath(path)
+			// Already gone (removed by an earlier command or watcher sync) — skip.
+			if (!viewModel) continue
+
 			pathsToDelete.push(viewModel.path)
 			idsToDelete.push(...this.getIdsFromTreeViewModel(viewModel))
 
@@ -37,6 +44,8 @@ export class DeleteCommand implements ICommand {
 			})
 		}
 
+		if (pathsToDelete.length === 0) return
+
 		pathsToDelete.sort((a, b) => b.localeCompare(a))
 
 		const response: Response<TrashMap[] | null> = await window.rendererToMain.delete(pathsToDelete)
@@ -46,8 +55,14 @@ export class DeleteCommand implements ICommand {
 		for (let i = 0; i < idsToDelete.length; i++) {
 			this.tabEditorFacade.removeTab(idsToDelete[i])
 		}
-		this.treeFacade.applyDelete(this.selectedIndices)
-		this.treeFacade.clearSelectedIndices()
+
+		// Re-resolve indices at apply time; applyDelete corrects selection state internally.
+		const indices: number[] = []
+		for (const item of this.deletedItems) {
+			const idx = this.treeFacade.getFlattenIndexByPath(item.path)
+			if (idx !== undefined) indices.push(idx)
+		}
+		this.treeFacade.applyDelete(indices)
 
 		const tabEditorsDto = this.tabEditorFacade.getTabEditorsDto()
 		await window.rendererToMain.syncTabSessionFromRenderer(tabEditorsDto)

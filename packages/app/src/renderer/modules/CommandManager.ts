@@ -12,7 +12,7 @@ import { DI, DOM } from "../constants"
 import closedFolderSvg from "../assets/icons/closed_folder.svg?raw"
 import openedFolderSvg from "../assets/icons/opened_folder.svg?raw"
 
-import { FocusManager } from "../core"
+import { CommandQueue, FocusManager } from "../core"
 import { TabEditorFacade, TreeFacade, SettingsFacade } from "./index"
 import { CreateCommand, DeleteCommand, PasteCommand, RenameCommand } from "../commands"
 
@@ -27,8 +27,27 @@ export class CommandManager {
 		@inject(DI.FocusManager) private readonly focusManager: FocusManager,
 		@inject(DI.SettingsFacade) private readonly settingsFacade: SettingsFacade,
 		@inject(DI.TabEditorFacade) private readonly tabEditorFacade: TabEditorFacade,
-		@inject(DI.TreeFacade) private readonly treeFacade: TreeFacade
+		@inject(DI.TreeFacade) private readonly treeFacade: TreeFacade,
+		@inject(DI.CommandQueue) private readonly commandQueue: CommandQueue
 	) {}
+
+	// Convention: public perform* methods enqueue; private _do* bodies run inside
+	// the queue and must only call other _do* helpers (an enqueue from inside a
+	// queued task would deadlock the chain).
+
+	/**
+	 * Holds the Main-side watcher skip (a counter) around an FS-mutating operation.
+	 * The release is delayed so trailing watcher events from this operation are
+	 * still ignored, without stalling the queue; overlapping holds are safe.
+	 */
+	private async _withWatchSkip<T>(fn: () => Promise<T>): Promise<T> {
+		await window.rendererToMain.setWatchSkipState(true)
+		try {
+			return await fn()
+		} finally {
+			sleep(300).then(() => window.rendererToMain.setWatchSkipState(false))
+		}
+	}
 
 	//
 
@@ -36,19 +55,21 @@ export class CommandManager {
 		this.tabEditorFacade.undoEditor()
 	}
 
-	async performUndoTree() {
+	performUndoTree() {
+		return this.commandQueue.enqueue(() => this._doUndoTree())
+	}
+
+	private async _doUndoTree() {
+		const cmd = this.undoStack.pop()
+		if (!cmd) return
+
 		try {
-			window.rendererToMain.setWatchSkipState(true)
-			const cmd = this.undoStack.pop()
-			if (!cmd) return
-			await cmd.undo()
+			await this._withWatchSkip(() => cmd.undo())
 			this.redoStack.push(cmd)
 		} catch (err) {
 			// Undo failed (e.g., parent copied into child, or src/dest no longer exists).
 			// OS/File system may have ignored the operation; we just skip it to avoid breaking the stack.
-		} finally {
-			await sleep(300)
-			window.rendererToMain.setWatchSkipState(false)
+			console.error("[CommandManager] undo(tree) failed:", err)
 		}
 	}
 
@@ -56,45 +77,67 @@ export class CommandManager {
 		this.tabEditorFacade.redoEditor()
 	}
 
-	async performRedoTree() {
+	performRedoTree() {
+		return this.commandQueue.enqueue(() => this._doRedoTree())
+	}
+
+	private async _doRedoTree() {
+		const cmd = this.redoStack.pop()
+		if (!cmd) return
+
 		try {
-			window.rendererToMain.setWatchSkipState(true)
-			const cmd = this.redoStack.pop()
-			if (!cmd) return
-			await cmd.execute()
+			await this._withWatchSkip(() => cmd.execute())
 			this.undoStack.push(cmd)
 		} catch (err) {
-			// intentionally empty
-		} finally {
-			await sleep(300)
-			window.rendererToMain.setWatchSkipState(false)
+			console.error("[CommandManager] redo(tree) failed:", err)
 		}
 	}
 
 	//
 
-	async performNewTab() {
+	performNewTab() {
+		return this.commandQueue.enqueue(() => this._doNewTab())
+	}
+
+	private async _doNewTab() {
 		const response: Response<number> = await window.rendererToMain.newTab()
 		if (response.result) await this.tabEditorFacade.addTab(response.data)
 	}
 
-	async performOpenFile(filePath?: string) {
+	performOpenFile(filePath?: string) {
+		return this.commandQueue.enqueue(() => this._doOpenFile(filePath))
+	}
+
+	private async _doOpenFile(filePath?: string) {
 		if (filePath) {
 			const tabEditorView = this.tabEditorFacade.getTabEditorViewByPath(filePath)
 			if (tabEditorView) {
 				this.tabEditorFacade.activateTabEditorById(tabEditorView.getId())
 				return
 			}
+
+			// A path always refers to a tree file. Re-validate at apply time:
+			// the file may have been deleted while this task waited in the queue.
+			if (!this.treeFacade.getTreeViewModelByPath(filePath)) return
 		}
 
-		const response: Response<TabEditorDto> = await window.rendererToMain.openFile(filePath)
-		if (response.result && response.data) {
-			const data = response.data
-			await this.tabEditorFacade.addTab(data.id, data.filePath, data.fileName, data.content, data.isBinary)
+		try {
+			const response: Response<TabEditorDto> = await window.rendererToMain.openFile(filePath)
+			if (response.result && response.data) {
+				const data = response.data
+				await this.tabEditorFacade.addTab(data.id, data.filePath, data.fileName, data.content, data.isBinary)
+			}
+		} catch (error) {
+			// e.g. the file vanished between our tree check and Main's read (external delete).
+			console.error("[CommandManager] openFile failed:", error)
 		}
 	}
 
-	async performOpenDirectoryByDialog() {
+	performOpenDirectoryByDialog() {
+		return this.commandQueue.enqueue(() => this._doOpenDirectoryByDialog())
+	}
+
+	private async _doOpenDirectoryByDialog() {
 		const openDirectoryResponse: Response<TreeDto> = await window.rendererToMain.openDirectory()
 		if (!openDirectoryResponse.data) return
 
@@ -108,7 +151,11 @@ export class CommandManager {
 		if (closeAllTabsResponse.result) this.tabEditorFacade.removeAllTabs(closeAllTabsResponse.data)
 	}
 
-	async performOpenDirectoryByTreeNode(treeNode: HTMLElement) {
+	performOpenDirectoryByTreeNode(treeNode: HTMLElement) {
+		return this.commandQueue.enqueue(() => this._doOpenDirectoryByTreeNode(treeNode))
+	}
+
+	private async _doOpenDirectoryByTreeNode(treeNode: HTMLElement) {
 		const dirPath = treeNode.dataset[DOM.DATASET_ATTR_TREE_PATH]!
 		const viewModel = this.treeFacade.getTreeViewModelByPath(dirPath)
 
@@ -142,15 +189,20 @@ export class CommandManager {
 
 	//
 
-	async performOpenFileOrDirectoryByLastSelectedIndex() {
+	performOpenFileOrDirectoryByLastSelectedIndex() {
+		return this.commandQueue.enqueue(() => this._doOpenFileOrDirectoryByLastSelectedIndex())
+	}
+
+	private async _doOpenFileOrDirectoryByLastSelectedIndex() {
 		const idx = Math.max(this.treeFacade.lastSelectedIndex, 0)
 		const viewModel = this.treeFacade.getTreeViewModelByIndex(idx)
+		if (!viewModel) return
 
 		if (viewModel.directory) {
 			const treeNode = this.treeFacade.getTreeNodeByIndex(idx)
-			await this.performOpenDirectoryByTreeNode(treeNode)
+			await this._doOpenDirectoryByTreeNode(treeNode)
 		} else {
-			await this.performOpenFile(viewModel.path)
+			await this._doOpenFile(viewModel.path)
 		}
 
 		// Re-focus the tree node to reclaim focus lost to the editor during the opening process.
@@ -191,14 +243,23 @@ export class CommandManager {
 
 	//
 
-	async performCloseTab(id: number) {
+	performCloseTab(id: number) {
+		return this.commandQueue.enqueue(() => this._doCloseTab(id))
+	}
+
+	private async _doCloseTab(id: number) {
 		const dto = this.tabEditorFacade.getTabEditorDtoById(id)
+		if (!dto) return
 		const response: Response<void> = await window.rendererToMain.closeTab(dto)
 		if (response.result) this.tabEditorFacade.removeTab(dto.id)
 		if (this.tabEditorFacade.activeTabId === -1) this.performCloseFindReplaceBox()
 	}
 
-	async performCloseOtherTabs() {
+	performCloseOtherTabs() {
+		return this.commandQueue.enqueue(() => this._doCloseOtherTabs())
+	}
+
+	private async _doCloseOtherTabs() {
 		const tabEditorDtoToExclude = this.tabEditorFacade.getTabEditorDtoById(this.tabEditorFacade.contextTabId)
 		const tabEditorsDto: TabEditorsDto = this.tabEditorFacade.getTabEditorsDto()
 		const response: Response<boolean[]> = await window.rendererToMain.closeOtherTabs(
@@ -208,7 +269,11 @@ export class CommandManager {
 		if (response.result) this.tabEditorFacade.removeTabsExcept(response.data)
 	}
 
-	async performCloseTabsToRight() {
+	performCloseTabsToRight() {
+		return this.commandQueue.enqueue(() => this._doCloseTabsToRight())
+	}
+
+	private async _doCloseTabsToRight() {
 		const tabEditorDtoAsReference = this.tabEditorFacade.getTabEditorDtoById(this.tabEditorFacade.contextTabId)
 		const tabEditorsDto: TabEditorsDto = this.tabEditorFacade.getTabEditorsDto()
 		const response: Response<boolean[]> = await window.rendererToMain.closeTabsToRight(
@@ -218,7 +283,11 @@ export class CommandManager {
 		if (response.result) this.tabEditorFacade.removeTabsToRight(response.data)
 	}
 
-	async performCloseAllTabs() {
+	performCloseAllTabs() {
+		return this.commandQueue.enqueue(() => this._doCloseAllTabs())
+	}
+
+	private async _doCloseAllTabs() {
 		const tabEditorsDto: TabEditorsDto = this.tabEditorFacade.getTabEditorsDto()
 		const response: Response<boolean[]> = await window.rendererToMain.closeAllTabs(tabEditorsDto)
 		if (response.result) this.tabEditorFacade.removeAllTabs(response.data)
@@ -227,6 +296,8 @@ export class CommandManager {
 	//
 
 	async performCreate(isDirectory: boolean) {
+		// The name prompt must stay outside the queue: it blocks on user input
+		// and would freeze every queued command behind it.
 		const parentInfo = await this._resolveParentDirectory()
 		if (!parentInfo) return
 
@@ -239,13 +310,15 @@ export class CommandManager {
 		const name = await this._promptForName(container, isDirectory, viewModel.indent)
 		if (!name) return
 
-		const cmd = await this._executeCreation(viewModel.path, name, isDirectory)
-		const filePath = cmd.getCreatedPath()
+		await this.commandQueue.enqueue(async () => {
+			const cmd = await this._executeCreation(viewModel.path, name, isDirectory)
+			const filePath = cmd.getCreatedPath()
 
-		if (filePath) {
-			await this._selectTreeNodeAfterCreate(filePath)
-			if (!isDirectory) this._openTabEditorAfterCreate(filePath, cmd)
-		}
+			if (filePath) {
+				this._selectTreeNodeAfterCreate(filePath)
+				if (!isDirectory) await this._openTabEditorAfterCreate(filePath, cmd)
+			}
+		})
 	}
 
 	private async _resolveParentDirectory() {
@@ -312,34 +385,31 @@ export class CommandManager {
 		const cmd = new CreateCommand(this.treeFacade, this.tabEditorFacade, parentPath, name, isDirectory)
 
 		try {
-			window.rendererToMain.setWatchSkipState(true)
-			await cmd.execute()
+			await this._withWatchSkip(() => cmd.execute())
 			this.undoStack.push(cmd)
 			this.redoStack.length = 0
 		} catch (error) {
-			// intentionally empty
-		} finally {
-			await sleep(300)
-			window.rendererToMain.setWatchSkipState(false)
+			console.error("[CommandManager] create failed:", error)
 		}
 
 		return cmd
 	}
 
-	async _selectTreeNodeAfterCreate(filePath: string) {
+	private _selectTreeNodeAfterCreate(filePath: string) {
 		this.treeFacade.clearTreeSelected()
 		const idx = this.treeFacade.getFlattenIndexByPath(filePath)
+		if (idx === undefined) return
 		this.treeFacade.addSelectedIndices(idx)
 		this.treeFacade.lastSelectedIndex = idx
 		const node = this.treeFacade.getTreeNodeByIndex(idx)
 		node.classList.add(DOM.CLASS_FOCUSED, DOM.CLASS_SELECTED)
 	}
 
-	async _openTabEditorAfterCreate(filePath: string, cmd: CreateCommand) {
-		await this.performOpenFile(filePath)
+	private async _openTabEditorAfterCreate(filePath: string, cmd: CreateCommand) {
+		await this._doOpenFile(filePath)
 		this.focusManager.setFocusedTask("editor")
 		const tabView = this.tabEditorFacade.getTabEditorViewByPath(filePath)
-		cmd.setOpenedTabId(tabView.getId())
+		if (tabView) cmd.setOpenedTabId(tabView.getId())
 	}
 
 
@@ -365,7 +435,7 @@ export class CommandManager {
 			return
 		}
 
-		await this._executeRename(treeNode, isDirectory, oldPath, newPath)
+		await this.commandQueue.enqueue(() => this._executeRename(treeNode, isDirectory, oldPath, newPath))
 	}
 
 	private _resolveRenameTarget() {
@@ -432,15 +502,12 @@ export class CommandManager {
 		const cmd = new RenameCommand(this.treeFacade, this.tabEditorFacade, treeNode, isDirectory, prePath, newPath)
 
 		try {
-			window.rendererToMain.setWatchSkipState(true)
-			await cmd.execute()
+			await this._withWatchSkip(() => cmd.execute())
 			this.undoStack.push(cmd)
 			this.redoStack.length = 0
 		} catch (error) {
+			console.error("[CommandManager] rename failed:", error)
 			this._restoreTreeSpan(treeNode, prePath)
-		} finally {
-			await sleep(300)
-			window.rendererToMain.setWatchSkipState(false)
 		}
 	}
 
@@ -454,21 +521,28 @@ export class CommandManager {
 
 	//
 
-	async performDelete() {
-		const selectedIndices = this.treeFacade.getSelectedIndices()
+	performDelete() {
+		return this.commandQueue.enqueue(() => this._doDelete())
+	}
 
-		const cmd = new DeleteCommand(this.treeFacade, this.tabEditorFacade, selectedIndices)
+	private async _doDelete() {
+		// Capture paths, not indices: the command re-resolves them at apply time,
+		// so overlapping/stale requests can never delete the wrong nodes.
+		const selectedPaths: string[] = []
+		for (const idx of this.treeFacade.getSelectedIndices()) {
+			const viewModel = this.treeFacade.getTreeViewModelByIndex(idx)
+			if (viewModel) selectedPaths.push(viewModel.path)
+		}
+		if (selectedPaths.length === 0) return
+
+		const cmd = new DeleteCommand(this.treeFacade, this.tabEditorFacade, selectedPaths)
 
 		try {
-			await window.rendererToMain.setWatchSkipState(true)
-			await cmd.execute()
+			await this._withWatchSkip(() => cmd.execute())
 			this.undoStack.push(cmd)
 			this.redoStack.length = 0
-		} catch {
-			// intentionally empty
-		} finally {
-			await sleep(300)
-			window.rendererToMain.setWatchSkipState(false)
+		} catch (error) {
+			console.error("[CommandManager] delete failed:", error)
 		}
 	}
 
@@ -577,22 +651,30 @@ export class CommandManager {
 	}
 
 	async performPasteTreeWithContextmenu() {
-		const targetIndex = this.treeFacade.contextTreeIndex
-		await this._performPasteTree(targetIndex)
+		await this._enqueuePasteTree(this.treeFacade.contextTreeIndex)
 	}
 
 	async performPasteTreeWithShortcut() {
-		const targetIndex = this.treeFacade.lastSelectedIndex
-		await this._performPasteTree(targetIndex)
+		await this._enqueuePasteTree(this.treeFacade.lastSelectedIndex)
 	}
 
 	async performPasteTreeWithDrag() {
-		const targetIndex = this.treeFacade.selectedDragIndex
-		await this._performPasteTree(targetIndex)
+		await this._enqueuePasteTree(this.treeFacade.selectedDragIndex)
 	}
 
-	private async _performPasteTree(targetIndex: number) {
-		if (targetIndex === -1) return
+	private _enqueuePasteTree(targetIndex: number): Promise<void> {
+		if (targetIndex === -1) return Promise.resolve()
+
+		// Capture the target as a path: the index may shift before the queued task runs.
+		const targetViewModel = this.treeFacade.getTreeViewModelByIndex(targetIndex)
+		if (!targetViewModel) return Promise.resolve()
+
+		return this.commandQueue.enqueue(() => this._doPasteTree(targetViewModel.path))
+	}
+
+	private async _doPasteTree(targetPath: string) {
+		let targetIndex = this.treeFacade.getFlattenIndexByPath(targetPath)
+		if (targetIndex === undefined) return
 
 		let targetViewModel = this.treeFacade.getTreeViewModelByIndex(targetIndex)
 
@@ -606,8 +688,10 @@ export class CommandManager {
 
 		const selectedViewModels = []
 		for (const path of clipboardPaths) {
-			selectedViewModels.push(this.treeFacade.getTreeViewModelByPath(path))
+			const viewModel = this.treeFacade.getTreeViewModelByPath(path)
+			if (viewModel) selectedViewModels.push(viewModel)
 		}
+		if (selectedViewModels.length === 0) return
 
 		const cmd = new PasteCommand(
 			this.treeFacade,
@@ -618,15 +702,11 @@ export class CommandManager {
 		)
 
 		try {
-			window.rendererToMain.setWatchSkipState(true)
-			await cmd.execute()
+			await this._withWatchSkip(() => cmd.execute())
 			this.undoStack.push(cmd)
 			this.redoStack.length = 0
-		} catch {
-			// intentionally empty
-		} finally {
-			await sleep(300)
-			window.rendererToMain.setWatchSkipState(false)
+		} catch (error) {
+			console.error("[CommandManager] paste failed:", error)
 		}
 	}
 

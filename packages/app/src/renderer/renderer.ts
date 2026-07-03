@@ -5,7 +5,7 @@ import 'simplebar/dist/simplebar.css'
 import { DI } from "./constants"
 import diContainer from "./diContainer"
 
-import { FocusManager, ShortcutRegistry } from "./core"
+import { CommandQueue, FocusManager, ShortcutRegistry } from "./core"
 import { Dispatcher } from "./dispatch"
 import { EventEmitter } from "events"
 
@@ -40,6 +40,7 @@ import {
 window.addEventListener("DOMContentLoaded", () => {
 	const menuElements = diContainer.get<MenuElements>(DI.MenuElements)
 
+	const commandQueue = diContainer.get<CommandQueue>(DI.CommandQueue)
 	const focusManager = diContainer.get<FocusManager>(DI.FocusManager)
 	const zoomManager = diContainer.get<ZoomManager>(DI.ZoomManager)
 	const shortcutRegistry = diContainer.get<ShortcutRegistry>(DI.ShortcutRegistry)
@@ -67,7 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
 	handleTree(dispatcher, emitter, focusManager, treeFacade, shortcutRegistry)
 	handleSide(emitter, sideFacade)
 	handleSettings(dispatcher, settingsFacade)
-	handleSync(tabEditorFacade, treeFacade)
+	handleSync(commandQueue, tabEditorFacade, treeFacade)
 
 	handleLoad(
 		dispatcher,

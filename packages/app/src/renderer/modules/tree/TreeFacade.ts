@@ -113,9 +113,15 @@ export class TreeFacade {
 	}
 
 	set lastSelectedIndex(index: number) {
-		const treeNode = this.getTreeNodeByIndex(index)
-		treeNode.focus()
-		this.store.lastSelectedIndex = index
+		// The node may already be gone (e.g. deleted while an open was in flight) —
+		// never let a focus attempt throw and poison the caller.
+		const viewModel = this.store.flattenTree[index]
+		if (viewModel) {
+			const wrapper = this.getTreeWrapperByPath(viewModel.path)
+			const treeNode = wrapper?.querySelector(DOM.SELECTOR_TREE_NODE) as HTMLElement | null
+			treeNode?.focus()
+		}
+		this.store.lastSelectedIndex = viewModel ? index : -1
 	}
 
 	removeLastSelectedIndex() {
@@ -123,7 +129,8 @@ export class TreeFacade {
 	}
 
 	setLastSelectedIndexByPath(path: string) {
-		this.lastSelectedIndex = this.store.getFlattenIndexByPath(path)!
+		const idx = this.store.getFlattenIndexByPath(path)
+		this.lastSelectedIndex = idx !== undefined ? idx : -1
 	}
 
 	//
@@ -428,11 +435,16 @@ export class TreeFacade {
 
 	clearTreeSelected() {
 		const selectedIndices = this.getSelectedIndices()
-		for (const i of selectedIndices) {
-			const div = this.getTreeNodeByIndex(i)
-			div.classList.remove(DOM.CLASS_SELECTED)
-		}
+		// Clear state first: even if a DOM lookup below fails, no dead index
+		// can survive in the set (the next click self-heals).
 		this.clearSelectedIndices()
+		for (const i of selectedIndices) {
+			const viewModel = this.store.flattenTree[i]
+			if (!viewModel) continue
+			const wrapper = this.getTreeWrapperByPath(viewModel.path)
+			const node = wrapper?.querySelector(DOM.SELECTOR_TREE_NODE)
+			node?.classList.remove(DOM.CLASS_SELECTED)
+		}
 	}
 
 	//
@@ -469,9 +481,46 @@ export class TreeFacade {
 		}
 	}
 
+	// Snapshot selection state as paths so it can be re-resolved after the
+	// flattenTree indices shift. Selection correction lives here (inside apply*),
+	// never in callers.
+	private _captureSelectionPaths() {
+		const selected: string[] = []
+		for (const i of this.getSelectedIndices()) {
+			const viewModel = this.store.flattenTree[i]
+			if (viewModel) selected.push(viewModel.path)
+		}
+
+		return {
+			selected,
+			last: this.store.flattenTree[this.store.lastSelectedIndex]?.path ?? null,
+			context: this.store.flattenTree[this.store.contextTreeIndex]?.path ?? null,
+		}
+	}
+
+	private _restoreSelectionPaths(snapshot: { selected: string[]; last: string | null; context: string | null }) {
+		this.clearSelectedIndices()
+		for (const path of snapshot.selected) {
+			const idx = this.getFlattenIndexByPath(path)
+			if (idx !== undefined) this.addSelectedIndices(idx)
+		}
+
+		// Assign via store to avoid the facade setter's focus side effect.
+		const lastIdx = snapshot.last !== null ? this.getFlattenIndexByPath(snapshot.last) : undefined
+		this.store.lastSelectedIndex = lastIdx !== undefined ? lastIdx : -1
+
+		const contextIdx = snapshot.context !== null ? this.getFlattenIndexByPath(snapshot.context) : undefined
+		this.store.contextTreeIndex = contextIdx !== undefined ? contextIdx : -1
+	}
+
 	applyDelete(indices: number[]) {
+		indices = indices.filter((i) => this.store.flattenTree[i] !== undefined)
+		if (indices.length === 0) return
+
 		indices.sort((a, b) => b - a)
 		const minIndex = indices[indices.length - 1]
+
+		const selectionSnapshot = this._captureSelectionPaths()
 
 		for (const index of indices) {
 			const target = this.store.flattenTree[index]
@@ -517,10 +566,16 @@ export class TreeFacade {
 		}
 
 		this.updatePathToFlattenTreeIndex(minIndex)
+		this._restoreSelectionPaths(selectionSnapshot)
 	}
 
 	applyCreate(parentPath: string, createdPath: string, isDirectory: boolean) {
 		const parent = this.getTreeViewModelByPath(parentPath)
+		// Parent may be unknown to the tree (e.g. watcher event under a directory
+		// that was never loaded) — nothing to update.
+		if (!parent) return
+		// Already present (e.g. watcher echo of our own create) — skip duplicates.
+		if (parent.children?.some((child) => child.path === createdPath)) return
 
 		const name = window.utils.getBaseName(createdPath)
 
@@ -554,8 +609,10 @@ export class TreeFacade {
 			flatInsertIdx = prevSiblingFlatIdx + prevSubtreeSize
 		}
 
-		// Insert into flattenTree
+		// Insert into flattenTree (selection indices at/after the insert point shift by one)
+		const selectionSnapshot = this._captureSelectionPaths()
 		this.store.insertIntoFlattenTree(flatInsertIdx, [newNode])
+		this._restoreSelectionPaths(selectionSnapshot)
 
 		// Insert into DOM
 		const container = this.getChildrenContainer(parentPath)
@@ -563,7 +620,7 @@ export class TreeFacade {
 			? parent.children[childInsertIdx + 1]
 			: null
 		const beforeElement = nextSibling ? this.getTreeWrapperByPath(nextSibling.path) : null
-		
+
 		this.renderer.renderSingleNode(newNode, container, beforeElement)
 	}
 

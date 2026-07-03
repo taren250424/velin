@@ -117,12 +117,15 @@ function bindContainerClickEvent(dispatcher: Dispatcher, treeFacade: TreeFacade)
 			treeNode.classList.add(DOM.CLASS_SELECTED)
 
 			const viewModel = treeFacade.getTreeViewModelByPath(path)
+			if (!viewModel) return
 			if (viewModel.directory) await dispatcher.dispatch("openDirectoryByTreeNode", "element", treeNode)
 			else await dispatcher.dispatch("openFile", "element", path)
 
-			treeFacade.setLastSelectedIndexByPath(path)
-
+			// The node may have been deleted while the open waited in the command queue.
 			const index = treeFacade.getFlattenIndexByPath(path)
+			if (index === undefined) return
+
+			treeFacade.setLastSelectedIndexByPath(path)
 			treeFacade.addSelectedIndices(index)
 		}
 	}
