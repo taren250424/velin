@@ -8,7 +8,7 @@ import { TreeRenderer } from "./TreeRenderer"
 import { TreeStore } from "./TreeStore"
 import { TreeDragManager } from "./TreeDragManager"
 import { CLASS_SELECTED } from "@renderer/constants/dom"
-import { adjustMenuPosition } from "@renderer/utils"
+import { adjustMenuPosition, assert } from "@renderer/utils"
 
 @injectable()
 export class TreeFacade {
@@ -113,9 +113,11 @@ export class TreeFacade {
 	}
 
 	set lastSelectedIndex(index: number) {
-		// The node may already be gone (e.g. deleted while an open was in flight) —
-		// never let a focus attempt throw and poison the caller.
+		// -1 is the explicit "no selection" sentinel. Any other index must be live:
+		// commands and watcher sync are serialized, so a dead index here is an
+		// internal bug — surface it in dev, tolerate it in production.
 		const viewModel = this.store.flattenTree[index]
+		assert(index === -1 || viewModel, `lastSelectedIndex: dead index ${index}`)
 		if (viewModel) {
 			const wrapper = this.getTreeWrapperByPath(viewModel.path)
 			const treeNode = wrapper?.querySelector(DOM.SELECTOR_TREE_NODE) as HTMLElement | null
@@ -435,11 +437,13 @@ export class TreeFacade {
 
 	clearTreeSelected() {
 		const selectedIndices = this.getSelectedIndices()
-		// Clear state first: even if a DOM lookup below fails, no dead index
-		// can survive in the set (the next click self-heals).
+		// Clear state first so a dead index can't survive in the set. Serialized
+		// mutations mean dead indices here are internal bugs — assert in dev,
+		// tolerate in production.
 		this.clearSelectedIndices()
 		for (const i of selectedIndices) {
 			const viewModel = this.store.flattenTree[i]
+			assert(viewModel, `clearTreeSelected: dead index ${i}`)
 			if (!viewModel) continue
 			const wrapper = this.getTreeWrapperByPath(viewModel.path)
 			const node = wrapper?.querySelector(DOM.SELECTOR_TREE_NODE)

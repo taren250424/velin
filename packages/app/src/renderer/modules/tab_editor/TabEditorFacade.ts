@@ -562,7 +562,9 @@ export class TabEditorFacade {
 	removeTab(id: number) {
 		const views = this.renderer.tabEditorViews
 		const index = views.findIndex((view) => view.getId() === id)
-		// Tab may already be gone (e.g. deleted before its openFile completed).
+		// Commands and watcher sync are serialized, so a missing id is an
+		// internal bug — surface it in dev, tolerate it in production.
+		assert(index !== -1, `removeTab: no tab with id ${id}`)
 		if (index === -1) return
 		const isAffected = this.store.activeTabIndex >= index
 
