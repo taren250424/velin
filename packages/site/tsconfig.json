@@ -2,13 +2,11 @@
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"composite": true,
-		"ignoreDeprecations": "6.0",
-		"baseUrl": ".",
 		"moduleResolution": "node",
 		"types": ["vite/client"],
 		"jsx": "react-jsx",
 		"paths": {
-			"@styles/*": ["src/styles/*"]
+			"@styles/*": ["./src/styles/*"]
 		}
 	},
 
