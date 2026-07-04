@@ -713,7 +713,8 @@ export class CommandManager {
 	//
 
 	toggleFindReplaceBox(showReplace: boolean) {
-		if (this.tabEditorFacade.activeTabId === -1) return
+		const activeView = this.tabEditorFacade.getActiveTabEditorView()
+		if (!activeView || activeView.isBinary) return
 
 		this.tabEditorFacade.findAndReplaceContainer.style.display = "flex"
 		this.tabEditorFacade.replaceBox.style.display = showReplace ? "flex" : "none"
@@ -740,8 +741,10 @@ export class CommandManager {
 	}
 
 	performReplace() {
-		const replaceInput = this.tabEditorFacade.replaceQuery
 		const view = this.tabEditorFacade.getActiveTabEditorView()
+		if (!view || view.isBinary) return
+
+		const replaceInput = this.tabEditorFacade.replaceQuery
 
 		const replaced = view.replaceCurrentMatch(replaceInput)
 		if (!replaced) return
@@ -750,10 +753,16 @@ export class CommandManager {
 	}
 
 	performReplaceAll() {
+		// Reachable via a global shortcut, so a closed box or a searchless
+		// tab must not silently rewrite the document with a stale query.
+		if (!this.tabEditorFacade.findReplaceOpen) return
+
+		const view = this.tabEditorFacade.getActiveTabEditorView()
+		if (!view || view.isBinary) return
+
 		const findInput = this.tabEditorFacade.searchQuery
 		const replaceInput = this.tabEditorFacade.replaceQuery
 
-		const view = this.tabEditorFacade.getActiveTabEditorView()
 		view.replaceAllMatches(findInput, replaceInput)
 	}
 
@@ -762,8 +771,7 @@ export class CommandManager {
 
 		this.tabEditorFacade.findAndReplaceContainer.style.display = "none"
 
-		const activeView = this.tabEditorFacade.getActiveTabEditorView()
-		if (activeView) activeView.clearSearch()
+		this.tabEditorFacade.clearAllSearches()
 
 		this.tabEditorFacade.findReplaceOpen = false
 	}

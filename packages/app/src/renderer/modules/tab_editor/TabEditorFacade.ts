@@ -699,6 +699,12 @@ export class TabEditorFacade {
 
 	findNextMatch(direction: "up" | "down" = this.findDirection) {
 		const tabEditorView = this.getActiveTabEditorView()
+		// Binary tabs have no editor to search in; a missing view means no tab is open.
+		if (!tabEditorView || tabEditorView.isBinary) {
+			this.findInfo.textContent = `No results`
+			return
+		}
+
 		const searchText = this.searchQuery
 
 		if (!searchText) {
@@ -730,7 +736,18 @@ export class TabEditorFacade {
 		}
 	}
 
+	clearAllSearches() {
+		for (const view of this.renderer.tabEditorViews) {
+			if (!view.isBinary) view.clearSearch()
+		}
+	}
+
 	private _processFindAndSelect(view: TabEditorView) {
+		if (view.isBinary) {
+			if (this.findReplaceOpen) this.findInfo.textContent = `No results`
+			return
+		}
+
 		if (this.findReplaceOpen && this.searchQuery) {
 			if (view.searchState?.query === this.searchQuery) {
 				this.focusCurrentMatch(view)
