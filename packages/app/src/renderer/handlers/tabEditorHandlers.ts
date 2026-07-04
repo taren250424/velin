@@ -90,13 +90,35 @@ function bindContextmenuClickEvents(dispatcher: Dispatcher, tabEditorFacade: Tab
 //
 
 function bindFindReplaceEvents(dispatcher: Dispatcher, tabEditorFacade: TabEditorFacade) {
-	const { findUp, findDown, replaceCurrent, replaceAll, closeFindReplace, findInput, replaceInput } =
-		tabEditorFacade.renderer.elements
+	const {
+		findUp,
+		findDown,
+		replaceCurrent,
+		replaceAll,
+		closeFindReplace,
+		findInput,
+		replaceInput,
+		findOptionCase,
+		findOptionWord,
+		findOptionRegex,
+	} = tabEditorFacade.renderer.elements
 
 	// Prevent buttons from stealing focus from the input when clicked.
 	// This keeps the find/replace input focused so keyboard shortcuts (e.g. Enter) work correctly.
-	;[findUp, findDown, replaceCurrent, replaceAll].forEach((btn) => {
+	;[findUp, findDown, replaceCurrent, replaceAll, findOptionCase, findOptionWord, findOptionRegex].forEach((btn) => {
 		btn.addEventListener("mousedown", (e) => e.preventDefault())
+	})
+
+	findOptionCase.addEventListener("click", async () => {
+		await dispatcher.dispatch("toggleSearchOption", "menu", "matchCase")
+	})
+
+	findOptionWord.addEventListener("click", async () => {
+		await dispatcher.dispatch("toggleSearchOption", "menu", "wholeWord")
+	})
+
+	findOptionRegex.addEventListener("click", async () => {
+		await dispatcher.dispatch("toggleSearchOption", "menu", "useRegex")
 	})
 
 	findUp.addEventListener("click", async () => {

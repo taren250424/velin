@@ -1,5 +1,6 @@
 import type { TabEditorViewModel } from "../../viewmodels/TabEditorViewModel"
 import type { TabEditorDto } from "@shared/dto/TabEditorDto"
+import type { SearchOptions } from "./TabEditorView"
 import { injectable } from "inversify"
 
 @injectable()
@@ -15,6 +16,12 @@ export class TabEditorStore {
 
 	private _searchQuery = ""
 	private _replaceQuery = ""
+
+	private _searchOptions: SearchOptions = {
+		matchCase: false,
+		wholeWord: false,
+		useRegex: false,
+	}
 
 	//
 
@@ -109,5 +116,9 @@ export class TabEditorStore {
 
 	set replaceQuery(query: string) {
 		this._replaceQuery = query
+	}
+
+	get searchOptions() {
+		return this._searchOptions
 	}
 }

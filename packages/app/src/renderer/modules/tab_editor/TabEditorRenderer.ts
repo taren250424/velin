@@ -342,4 +342,16 @@ export class TabEditorRenderer {
 	get replaceInfo() {
 		return this.elements.replaceInfo
 	}
+
+	get findOptionCase() {
+		return this.elements.findOptionCase
+	}
+
+	get findOptionWord() {
+		return this.elements.findOptionWord
+	}
+
+	get findOptionRegex() {
+		return this.elements.findOptionRegex
+	}
 }

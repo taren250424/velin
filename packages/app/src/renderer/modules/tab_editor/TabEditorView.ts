@@ -15,6 +15,29 @@ type SearchMatch = {
 	to: number
 }
 
+export type SearchOptions = {
+	matchCase: boolean
+	wholeWord: boolean
+	useRegex: boolean
+}
+
+// Stands in for non-text inline nodes (images, hard breaks) so string
+// offsets stay aligned with document positions; never matches user input.
+const INLINE_NODE_PLACEHOLDER = "￼"
+
+function buildSearchRegex(searchText: string, options: SearchOptions): RegExp | null {
+	let source = options.useRegex ? searchText : searchText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+	if (options.wholeWord) source = `\\b(?:${source})\\b`
+
+	try {
+		return new RegExp(source, options.matchCase ? "g" : "gi")
+	} catch {
+		// A user-typed regex is transiently invalid while being edited.
+		return null
+	}
+}
+
 type SearchState = {
 	query: string
 	matches: SearchMatch[]
@@ -251,29 +274,48 @@ export class TabEditorView {
 
 	//
 
-	findAllMatches(searchText: string): SearchMatch[] {
+	findAllMatches(searchText: string, options: SearchOptions): SearchMatch[] {
 		const view = this._editor!.ctx.get(editorViewCtx)
 		const { doc } = view.state
 
-		const matches: { from: number; to: number }[] = []
+		const matches: SearchMatch[] = []
 
-		if (!searchText || !searchText.trim()) {
-			return matches
-		}
+		if (!searchText) return matches
+
+		const regex = buildSearchRegex(searchText, options)
+		if (!regex) return matches
 
 		doc.descendants((node, pos) => {
-			if (node.isText) {
-				const text = node.text ?? ""
-				let index = text.indexOf(searchText)
-				while (index !== -1) {
+			if (!node.isTextblock) return true
+
+			// Concatenate the block's inline content so matches can cross
+			// mark boundaries (e.g. a word partially bolded).
+			let text = ""
+			node.forEach((child) => {
+				if (child.isText) text += child.text
+				else text += INLINE_NODE_PLACEHOLDER.repeat(child.nodeSize)
+			})
+
+			const contentStart = pos + 1
+			regex.lastIndex = 0
+
+			let m: RegExpExecArray | null
+			while ((m = regex.exec(text)) !== null) {
+				// A regex can produce empty matches (e.g. "a*"); step past them.
+				if (m[0].length === 0) {
+					regex.lastIndex++
+					continue
+				}
+				// Matches spanning a non-text inline node are not real text.
+				if (!m[0].includes(INLINE_NODE_PLACEHOLDER)) {
 					matches.push({
-						from: pos + index,
-						to: pos + index + searchText.length,
+						from: contentStart + m.index,
+						to: contentStart + m.index + m[0].length,
 					})
-					index = text.indexOf(searchText, index + searchText.length)
 				}
 			}
-			return true
+
+			return false
 		})
 
 		return matches
@@ -283,8 +325,8 @@ export class TabEditorView {
 		this._searchState = state
 	}
 
-	searchNextMatch(query: string, direction: "up" | "down"): number {
-		const matches = this.findAllMatches(query)
+	searchNextMatch(query: string, direction: "up" | "down", options: SearchOptions): number {
+		const matches = this.findAllMatches(query, options)
 		if (!matches.length) {
 			this.clearSearch()
 			return -1
@@ -406,7 +448,7 @@ export class TabEditorView {
 		return replaced
 	}
 
-	replaceAllMatches(searchText: string, replaceText: string): number {
+	replaceAllMatches(searchText: string, replaceText: string, options: SearchOptions): number {
 		if (!searchText) return 0
 
 		let replacedCount = 0
@@ -415,7 +457,7 @@ export class TabEditorView {
 			const view = ctx.get(editorViewCtx)
 			const state = view.state
 
-			const matches = this.findAllMatches(searchText)
+			const matches = this.findAllMatches(searchText, options)
 			if (!matches.length) return
 
 			let tr = state.tr

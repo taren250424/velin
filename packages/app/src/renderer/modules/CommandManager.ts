@@ -745,6 +745,21 @@ export class CommandManager {
 		this.tabEditorFacade.replaceInfo.textContent = ""
 	}
 
+	performToggleSearchOption(option: "matchCase" | "wholeWord" | "useRegex") {
+		const enabled = this.tabEditorFacade.toggleSearchOption(option)
+
+		const buttons = {
+			matchCase: this.tabEditorFacade.findOptionCase,
+			wholeWord: this.tabEditorFacade.findOptionWord,
+			useRegex: this.tabEditorFacade.findOptionRegex,
+		}
+		buttons[option].classList.toggle(DOM.CLASS_SELECTED, enabled)
+
+		// Match lists computed with the previous options are meaningless now.
+		this.tabEditorFacade.clearAllSearches()
+		this.performFind(this.tabEditorFacade.findDirection)
+	}
+
 	performFind(direction: "up" | "down") {
 		this.tabEditorFacade.findNextMatch(direction)
 	}
@@ -779,7 +794,7 @@ export class CommandManager {
 		const findInput = this.tabEditorFacade.searchQuery
 		const replaceInput = this.tabEditorFacade.replaceQuery
 
-		const replacedCount = view.replaceAllMatches(findInput, replaceInput)
+		const replacedCount = view.replaceAllMatches(findInput, replaceInput, this.tabEditorFacade.searchOptions)
 
 		// Match positions and the count label are invalid after the rewrite.
 		this.tabEditorFacade.findNextMatch()

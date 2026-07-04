@@ -140,6 +140,12 @@ export class Dispatcher {
 					menu: (query: string) => this.commandManager.performReplaceQueryChanged(query),
 				},
 			},
+			toggleSearchOption: {
+				default: {
+					menu: (option: "matchCase" | "wholeWord" | "useRegex") =>
+						this.commandManager.performToggleSearchOption(option),
+				},
+			},
 			find: {
 				default: {
 					default: (direction: "up" | "down") => this.commandManager.performFind(direction),

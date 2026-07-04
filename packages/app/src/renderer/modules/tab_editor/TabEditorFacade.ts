@@ -8,6 +8,7 @@ import { DATASET_ATTR_TAB_ID, EXIT_TEXT } from "../../constants/dom"
 import { TabEditorRenderer } from "./TabEditorRenderer"
 import { TabEditorStore } from "./TabEditorStore"
 import { TabEditorView } from "./TabEditorView"
+import type { SearchOptions } from "./TabEditorView"
 import { TabDragManager } from "./TabDragManager"
 import { adjustMenuPosition, assert } from "@renderer/utils"
 import { DI, DOM } from "@renderer/constants"
@@ -103,6 +104,16 @@ export class TabEditorFacade {
 
 	set replaceQuery(query: string) {
 		this.store.replaceQuery = query
+	}
+
+	get searchOptions(): SearchOptions {
+		return this.store.searchOptions
+	}
+
+	toggleSearchOption(option: keyof SearchOptions): boolean {
+		const options = this.store.searchOptions
+		options[option] = !options[option]
+		return options[option]
 	}
 
 	// renderer
@@ -222,6 +233,18 @@ export class TabEditorFacade {
 
 	get replaceInfo() {
 		return this.renderer.replaceInfo
+	}
+
+	get findOptionCase() {
+		return this.renderer.findOptionCase
+	}
+
+	get findOptionWord() {
+		return this.renderer.findOptionWord
+	}
+
+	get findOptionRegex() {
+		return this.renderer.findOptionRegex
 	}
 
 	// drag
@@ -717,7 +740,7 @@ export class TabEditorFacade {
 			return
 		}
 
-		const targetIndex = tabEditorView.searchNextMatch(searchText, direction)
+		const targetIndex = tabEditorView.searchNextMatch(searchText, direction, this.searchOptions)
 		const matchesCount = tabEditorView.searchState?.matches.length || 0
 
 		if (targetIndex !== -1 && matchesCount > 0) {

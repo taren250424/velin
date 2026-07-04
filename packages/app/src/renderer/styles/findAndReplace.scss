@@ -53,6 +53,15 @@ $info-horizontal-padding: 4px;
 	background-color: var(--find-replace-button-hover);
 }
 
+// Outranks the id-scoped font-size reset on #find-replace-container *.
+#find-replace-container .find-option-btn {
+	font-size: 0.7rem;
+}
+
+#find-replace-container .find-option-btn.selected {
+	background-color: var(--find-replace-button-hover);
+}
+
 #find-info,
 #replace-info {
 	width: $info-width;

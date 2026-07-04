@@ -26,6 +26,7 @@ export type AppEvents =
 	| "toggleFindReplace"
 	| "searchQueryChanged"
 	| "replaceQueryChanged"
+	| "toggleSearchOption"
 	| "find"
 	| "replace"
 	| "replaceAll"
