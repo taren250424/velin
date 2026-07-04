@@ -18,7 +18,7 @@ export function handleTabEditor(
 	bindContextmenuToggleEvents(emitter, tabEditorFacade)
 	bindContextmenuClickEvents(dispatcher, tabEditorFacade)
 
-	bindFindReplaceEvnets(dispatcher, tabEditorFacade)
+	bindFindReplaceEvents(dispatcher, tabEditorFacade)
 
 	bindShortcutEvents(dispatcher, shortcutRegistry, tabEditorFacade)
 
@@ -89,7 +89,7 @@ function bindContextmenuClickEvents(dispatcher: Dispatcher, tabEditorFacade: Tab
 
 //
 
-function bindFindReplaceEvnets(dispatcher: Dispatcher, tabEditorFacade: TabEditorFacade) {
+function bindFindReplaceEvents(dispatcher: Dispatcher, tabEditorFacade: TabEditorFacade) {
 	const { findUp, findDown, replaceCurrent, replaceAll, closeFindReplace, findInput, replaceInput } =
 		tabEditorFacade.renderer.elements
 

@@ -6,6 +6,7 @@ import { TextSelection, Selection } from "prosemirror-state"
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view"
 import { Plugin, PluginKey } from "prosemirror-state"
 import { redo, undo } from "prosemirror-history"
+import type { Node } from "prosemirror-model"
 
 import { CLASS_SELECTED, DATASET_ATTR_TAB_ID } from "../../constants/dom"
 
@@ -18,7 +19,14 @@ type SearchState = {
 	query: string
 	matches: SearchMatch[]
 	currentIndex: number
+	// Doc the matches were computed against; edits make them stale.
+	doc: Node
 }
+
+type SearchHighlightMeta = {
+	matches: SearchMatch[]
+	currentIndex: number
+} | null
 
 export class TabEditorView {
 	private _tabBox: HTMLElement
@@ -34,7 +42,7 @@ export class TabEditorView {
 	private _suppressInputEvent = false
 
 	private _searchState: SearchState | null = null
-	private _searchHighlightKey = new PluginKey("searchHighlight")
+	private _searchHighlightKey = new PluginKey<DecorationSet>("searchHighlight")
 
 	constructor(
 		tabBox: HTMLElement,
@@ -297,63 +305,75 @@ export class TabEditorView {
 			query,
 			matches,
 			currentIndex: targetIndex,
+			doc: state.doc,
 		})
 
 		this.focusCurrentMatch()
 		return targetIndex
 	}
 
+	isSearchStateStale(): boolean {
+		if (!this._searchState) return true
+		const view = this._editor!.ctx.get(editorViewCtx)
+		return this._searchState.doc !== view.state.doc
+	}
+
 	focusCurrentMatch() {
 		if (!this._searchState) return
 
 		const { matches, currentIndex } = this._searchState
+		const match = matches[currentIndex]
 
 		const view = this._editor!.ctx.get(editorViewCtx)
+		this._ensureSearchHighlightPlugin(view)
+
 		const state = view.state
-
-		this.applySearchHighlight(view)
-
-		const match = matches[currentIndex]
-		const tr = state.tr.setSelection(TextSelection.create(state.doc, match.from, match.to)).scrollIntoView()
+		const tr = state.tr
+			.setSelection(TextSelection.create(state.doc, match.from, match.to))
+			.setMeta(this._searchHighlightKey, { matches, currentIndex } satisfies SearchHighlightMeta)
+			.scrollIntoView()
 
 		view.dispatch(tr)
 	}
 
-	applySearchHighlight(view: EditorView) {
-		const state = view.state
+	// Registered once per editor; afterwards highlights are driven purely by
+	// meta transactions, and doc edits remap them via DecorationSet.map.
+	private _ensureSearchHighlightPlugin(view: EditorView) {
+		const key = this._searchHighlightKey
+		if (key.get(view.state)) return
 
-		const searchHighlightPlugin = new Plugin({
-			key: this._searchHighlightKey,
+		const searchHighlightPlugin = new Plugin<DecorationSet>({
+			key,
 			state: {
 				init: () => DecorationSet.empty,
-				apply: (tr, old, _oldState, newState) => old.map(tr.mapping, newState.doc),
-			},
-			props: {
-				decorations: () => {
-					if (!this._searchState?.matches.length) return null
+				apply: (tr, old) => {
+					const meta = tr.getMeta(key) as SearchHighlightMeta | undefined
+					if (meta === undefined) return old.map(tr.mapping, tr.doc)
+					if (meta === null || !meta.matches.length) return DecorationSet.empty
 
-					const decorations = this._searchState?.matches.map((match, idx) =>
+					const decorations = meta.matches.map((match, idx) =>
 						Decoration.inline(match.from, match.to, {
-							class: idx === this._searchState?.currentIndex ? "search-highlight-current" : "search-highlight",
+							class: idx === meta.currentIndex ? "search-highlight-current" : "search-highlight",
 						})
 					)
-
-					return DecorationSet.create(state.doc, decorations)
+					return DecorationSet.create(tr.doc, decorations)
 				},
+			},
+			props: {
+				decorations: (state) => key.getState(state),
 			},
 		})
 
-		const plugins = state.plugins.filter((p) => p.spec.key !== this._searchHighlightKey)
-
-		const newState = state.reconfigure({
-			plugins: [...plugins, searchHighlightPlugin],
+		const newState = view.state.reconfigure({
+			plugins: [...view.state.plugins, searchHighlightPlugin],
 		})
-
 		view.updateState(newState)
 	}
 
 	replaceCurrentMatch(replaceText: string): boolean {
 		if (!this._searchState) return false
+		// Matches computed against an older doc must not rewrite arbitrary ranges.
+		if (this.isSearchStateStale()) return false
 
 		const { matches, currentIndex } = this._searchState
 		if (currentIndex < 0 || currentIndex >= matches.length) return false
@@ -415,11 +435,13 @@ export class TabEditorView {
 	}
 
 	clearSearch() {
-		const view = this._editor!.ctx.get(editorViewCtx)
-		const plugins = view.state.plugins.filter((p) => p.spec.key !== this._searchHighlightKey)
-		const newState = view.state.reconfigure({ plugins })
-		view.updateState(newState)
 		this._searchState = null
+
+		const view = this._editor!.ctx.get(editorViewCtx)
+		const decorations = this._searchHighlightKey.getState(view.state)
+		if (!decorations || decorations === DecorationSet.empty) return
+
+		view.dispatch(view.state.tr.setMeta(this._searchHighlightKey, null))
 	}
 
 	get searchState() {

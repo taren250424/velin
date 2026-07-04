@@ -749,7 +749,7 @@ export class TabEditorFacade {
 		}
 
 		if (this.findReplaceOpen && this.searchQuery) {
-			if (view.searchState?.query === this.searchQuery) {
+			if (view.searchState?.query === this.searchQuery && !view.isSearchStateStale()) {
 				this.focusCurrentMatch(view)
 			} else {
 				this.findNextMatch()

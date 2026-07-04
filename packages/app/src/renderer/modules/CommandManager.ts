@@ -727,7 +727,6 @@ export class CommandManager {
 	}
 
 	performSearchQueryChanged(query: string) {
-		if (query === this.tabEditorFacade.searchQuery) return
 		this.tabEditorFacade.searchQuery = query
 		this.performFind(this.tabEditorFacade.findDirection)
 	}
@@ -743,6 +742,13 @@ export class CommandManager {
 	performReplace() {
 		const view = this.tabEditorFacade.getActiveTabEditorView()
 		if (!view || view.isBinary) return
+
+		// Edits since the last search invalidate match positions;
+		// re-locate instead of replacing a stale range.
+		if (view.isSearchStateStale()) {
+			this.tabEditorFacade.findNextMatch()
+			return
+		}
 
 		const replaceInput = this.tabEditorFacade.replaceQuery
 
@@ -764,6 +770,9 @@ export class CommandManager {
 		const replaceInput = this.tabEditorFacade.replaceQuery
 
 		view.replaceAllMatches(findInput, replaceInput)
+
+		// Match positions and the count label are invalid after the rewrite.
+		this.tabEditorFacade.findNextMatch()
 	}
 
 	performCloseFindReplaceBox() {
