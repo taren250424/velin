@@ -186,10 +186,15 @@ export class Dispatcher {
 			},
 			enter: {
 				"find-replace": {
-					shortcut: async () => this.commandManager.performFindOrReplaceByActiveElement(),
+					shortcut: async () => this.commandManager.performFindOrReplaceByActiveElement("down"),
 				},
 				tree: {
 					shortcut: async () => await this.commandManager.performOpenFileOrDirectoryByLastSelectedIndex(),
+				},
+			},
+			shiftEnter: {
+				"find-replace": {
+					shortcut: async () => this.commandManager.performFindOrReplaceByActiveElement("up"),
 				},
 			},
 		}

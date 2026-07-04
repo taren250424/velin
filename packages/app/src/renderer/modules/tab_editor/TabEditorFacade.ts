@@ -220,6 +220,10 @@ export class TabEditorFacade {
 		return this.renderer.findInfo
 	}
 
+	get replaceInfo() {
+		return this.renderer.replaceInfo
+	}
+
 	// drag
 
 	isDrag(): boolean {

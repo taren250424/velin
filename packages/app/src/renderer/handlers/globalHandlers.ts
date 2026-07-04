@@ -97,4 +97,5 @@ function bindDocumentKeydownEvent(shortcutRegistry: ShortcutRegistry) {
 function bindShortcutEvent(dispatcher: Dispatcher, shortcutRegistry: ShortcutRegistry) {
 	shortcutRegistry.register("ESC", async () => await dispatcher.dispatch("esc", "shortcut"))
 	shortcutRegistry.register("ENTER", async () => await dispatcher.dispatch("enter", "shortcut"))
+	shortcutRegistry.register("Shift+ENTER", async () => await dispatcher.dispatch("shiftEnter", "shortcut"))
 }

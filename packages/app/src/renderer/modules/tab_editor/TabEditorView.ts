@@ -183,6 +183,14 @@ export class TabEditorView {
 		})
 	}
 
+	getSelectedText(): string {
+		return this._editor!.action((ctx) => {
+			const view = ctx.get(editorViewCtx)
+			const { from, to } = view.state.selection
+			return view.state.doc.textBetween(from, to, "\n")
+		})
+	}
+
 	setSelection(sel: { anchor: number; head: number }) {
 		this._editor!.action((ctx) => {
 			const view = ctx.get(editorViewCtx)

@@ -338,4 +338,8 @@ export class TabEditorRenderer {
 	get findInfo() {
 		return this.elements.findInfo
 	}
+
+	get replaceInfo() {
+		return this.elements.replaceInfo
+	}
 }

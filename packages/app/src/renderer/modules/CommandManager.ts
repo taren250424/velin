@@ -716,9 +716,17 @@ export class CommandManager {
 		const activeView = this.tabEditorFacade.getActiveTabEditorView()
 		if (!activeView || activeView.isBinary) return
 
+		// Seed the query from the editor selection, like most editors do.
+		const selectedText = activeView.getSelectedText()
+		if (selectedText && !selectedText.includes("\n")) {
+			this.tabEditorFacade.searchQuery = selectedText
+			this.tabEditorFacade.findInput.value = selectedText
+		}
+
 		this.tabEditorFacade.findAndReplaceContainer.style.display = "flex"
 		this.tabEditorFacade.replaceBox.style.display = showReplace ? "flex" : "none"
 		this.tabEditorFacade.findReplaceOpen = true
+		this.tabEditorFacade.replaceInfo.textContent = ""
 
 		if (showReplace) this.tabEditorFacade.replaceInput.select()
 		else this.tabEditorFacade.findInput.select()
@@ -728,11 +736,13 @@ export class CommandManager {
 
 	performSearchQueryChanged(query: string) {
 		this.tabEditorFacade.searchQuery = query
+		this.tabEditorFacade.replaceInfo.textContent = ""
 		this.performFind(this.tabEditorFacade.findDirection)
 	}
 
 	performReplaceQueryChanged(query: string) {
 		this.tabEditorFacade.replaceQuery = query
+		this.tabEditorFacade.replaceInfo.textContent = ""
 	}
 
 	performFind(direction: "up" | "down") {
@@ -769,10 +779,12 @@ export class CommandManager {
 		const findInput = this.tabEditorFacade.searchQuery
 		const replaceInput = this.tabEditorFacade.replaceQuery
 
-		view.replaceAllMatches(findInput, replaceInput)
+		const replacedCount = view.replaceAllMatches(findInput, replaceInput)
 
 		// Match positions and the count label are invalid after the rewrite.
 		this.tabEditorFacade.findNextMatch()
+
+		this.tabEditorFacade.replaceInfo.textContent = replacedCount > 0 ? `${replacedCount} replaced` : ""
 	}
 
 	performCloseFindReplaceBox() {
@@ -781,17 +793,18 @@ export class CommandManager {
 		this.tabEditorFacade.findAndReplaceContainer.style.display = "none"
 
 		this.tabEditorFacade.clearAllSearches()
+		this.tabEditorFacade.replaceInfo.textContent = ""
 
 		this.tabEditorFacade.findReplaceOpen = false
 	}
 
 	//
 
-	performFindOrReplaceByActiveElement() {
+	performFindOrReplaceByActiveElement(direction: "up" | "down" = "down") {
 		const activateElement = document.activeElement
 
 		if (activateElement === this.tabEditorFacade.findInput) {
-			this.performFind(this.tabEditorFacade.findDirection)
+			this.performFind(direction)
 		} else if (activateElement === this.tabEditorFacade.replaceInput) {
 			this.performReplace()
 		}

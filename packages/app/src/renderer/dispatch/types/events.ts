@@ -36,3 +36,4 @@ export type AppEvents =
 	//
 	| "esc"
 	| "enter"
+	| "shiftEnter"

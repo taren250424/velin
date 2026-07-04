@@ -18,6 +18,7 @@ export class TabEditorElements {
 	public readonly findInput: HTMLInputElement
 	public readonly replaceInput: HTMLInputElement
 	public readonly findInfo: HTMLElement
+	public readonly replaceInfo: HTMLElement
 	public readonly findUp: HTMLElement
 	public readonly findDown: HTMLElement
 	public readonly replaceCurrent: HTMLElement
@@ -41,6 +42,7 @@ export class TabEditorElements {
 		this.findInput = document.querySelector("#find-input") as HTMLInputElement
 		this.replaceInput = document.querySelector("#replace-input") as HTMLInputElement
 		this.findInfo = document.querySelector("#find-info") as HTMLElement
+		this.replaceInfo = document.querySelector("#replace-info") as HTMLElement
 		this.findUp = document.querySelector("#find-up") as HTMLElement
 		this.findDown = document.querySelector("#find-down") as HTMLElement
 		this.replaceCurrent = document.querySelector("#replace-current") as HTMLElement
