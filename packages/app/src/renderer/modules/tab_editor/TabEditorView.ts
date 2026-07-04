@@ -435,7 +435,8 @@ export class TabEditorView {
 			const state = view.state
 			const { from, to } = matches[currentIndex]
 
-			let tr = state.tr.replaceWith(from, to, state.schema.text(replaceText))
+			// schema.text("") throws; an empty replacement means deletion.
+			let tr = replaceText ? state.tr.replaceWith(from, to, state.schema.text(replaceText)) : state.tr.delete(from, to)
 
 			const cursorPos = tr.mapping.map(from) + replaceText.length
 			tr = tr.setSelection(TextSelection.create(tr.doc, cursorPos))
@@ -465,7 +466,8 @@ export class TabEditorView {
 			// Replace backwards to avoid shifting positional indices for upcoming matches
 			for (let i = matches.length - 1; i >= 0; i--) {
 				const { from, to } = matches[i]
-				tr = tr.replaceWith(from, to, state.schema.text(replaceText))
+				// schema.text("") throws; an empty replacement means deletion.
+				tr = replaceText ? tr.replaceWith(from, to, state.schema.text(replaceText)) : tr.delete(from, to)
 				replacedCount++
 			}
 
