@@ -737,6 +737,10 @@ export class CommandManager {
 	performSearchQueryChanged(query: string) {
 		this.tabEditorFacade.searchQuery = query
 		this.tabEditorFacade.replaceInfo.textContent = ""
+		// The input event is debounced, so it can arrive after the box was
+		// closed (e.g. Esc committing an IME composition); searching then
+		// would repaint highlights that close just cleared.
+		if (!this.tabEditorFacade.findReplaceOpen) return
 		this.performFind(this.tabEditorFacade.findDirection)
 	}
 
