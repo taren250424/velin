@@ -33,6 +33,9 @@ export class SettingsRenderer {
 		this.elements.editorWidthInput.value = editorViewModel.width.toString()
 		this.elements.fontSizeInput.value = editorViewModel.fontSize.toString()
 		this.elements.fontFamilyInput.value = editorViewModel.fontFamily.toString()
+		this.elements.autoSaveSelect.optionIndex = Array.from(this.elements.autoSaveOptions).findIndex(
+			(el) => el.value === editorViewModel.autoSave
+		)
 	}
 
 	private _renderSettingTheme(themeViewModel: SettingThemeViewModel) {
@@ -58,6 +61,13 @@ export class SettingsRenderer {
 	onChangeFontFamily(callback: (family: string) => void) {
 		this.elements.fontFamilyInput.addEventListener("change", () => {
 			callback(this.elements.fontFamilyInput.value)
+		})
+	}
+
+	onChangeAutoSave(callback: (autoSave: string) => void) {
+		this.elements.autoSaveSelect.addEventListener("aero-select-changed", (e) => {
+			const option = e.detail.option as AeroOption
+			callback(option.value)
 		})
 	}
 

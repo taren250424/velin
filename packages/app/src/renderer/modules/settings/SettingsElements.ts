@@ -18,6 +18,10 @@ export class SettingsElements {
 	public readonly editorWidthDiv: HTMLElement
 	public readonly editorWidthInput: HTMLInputElement
 
+	public readonly autoSaveDiv: HTMLElement
+	public readonly autoSaveSelect: aero.AeroSelect
+	public readonly autoSaveOptions: NodeListOf<aero.AeroOption>
+
 	public readonly themeDiv: HTMLElement
 	public readonly themeSelect: aero.AeroSelect
 	public readonly themeOptions: NodeListOf<aero.AeroOption>
@@ -40,6 +44,10 @@ export class SettingsElements {
 
 		this.editorWidthDiv = document.querySelector("#setting-node-editor-width") as HTMLElement
 		this.editorWidthInput = document.querySelector("#setting-node-editor-width input") as HTMLInputElement
+
+		this.autoSaveDiv = document.querySelector("#setting-node-editor-auto-save") as HTMLElement
+		this.autoSaveSelect = document.querySelector("#setting-node-editor-auto-save aero-select") as aero.AeroSelect
+		this.autoSaveOptions = this.autoSaveSelect.querySelectorAll("aero-option") as NodeListOf<aero.AeroOption>
 
 		this.themeDiv = document.querySelector("#settings-node-theme") as HTMLElement
 		this.themeSelect = document.querySelector("#settings-node-theme aero-select") as aero.AeroSelect

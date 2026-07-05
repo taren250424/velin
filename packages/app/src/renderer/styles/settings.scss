@@ -15,6 +15,7 @@ $setting-node-label-width: 100px;
 $setting-node-input-number-width: 50px;
 $setting-node-input-string-width: 120px;
 $setting-node-select-width: 120px;
+$setting-node-select-wide-width: 170px;
 
 #settings-overlay {
 	display: none;
@@ -187,6 +188,17 @@ $setting-node-select-width: 120px;
 
 	text-align: center;
 	vertical-align: middle;
+}
+
+// Slotted options are fixed-height single-line boxes inside the component,
+// so a label that wraps overlaps the next option. Keep labels on one line
+// and give the auto-save select room for its long labels.
+.setting-node aero-option {
+	white-space: nowrap;
+}
+
+#setting-node-editor-auto-save > aero-select {
+	--aero-select-width: #{$setting-node-select-wide-width};
 }
 
 // .setting-node aero-option:not(:last-child) {

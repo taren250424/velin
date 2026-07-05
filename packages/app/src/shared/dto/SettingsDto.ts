@@ -7,6 +7,7 @@ export interface SettingEditorDto {
 	width: number
 	fontSize: number
 	fontFamily: string
+	autoSave: string
 }
 
 export interface SettingThemeDto {

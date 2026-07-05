@@ -70,6 +70,7 @@ describe("Load Service - loadedRenderer", () => {
 				width: 500,
 				fontSize: 16,
 				fontFamily: 'sans-serif',
+				autoSave: 'off',
 			},
 			settingThemeSessionModel: {},
 		}

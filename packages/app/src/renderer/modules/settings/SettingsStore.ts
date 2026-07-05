@@ -18,6 +18,7 @@ export class SettingsStore {
 				width: 500,
 				fontSize: 12,
 				fontFamily: "sans-serif",
+				autoSave: "off",
 			},
 
 			settingThemeViewModel: {
@@ -36,6 +37,7 @@ export class SettingsStore {
 				width: dto.settingEditorDto?.width ?? 500,
 				fontSize: dto.settingEditorDto?.fontSize ?? 12,
 				fontFamily: dto.settingEditorDto?.fontFamily ?? "sans-serif",
+				autoSave: dto.settingEditorDto?.autoSave ?? "off",
 			},
 			settingThemeViewModel: dto.settingThemeDto as SettingThemeViewModel,
 		}
@@ -68,6 +70,9 @@ export class SettingsStore {
 
 		this._currentSettings.settingEditorViewModel.fontFamily =
 			editorViewModel?.fontFamily ?? this._currentSettings.settingEditorViewModel.fontFamily
+
+		this._currentSettings.settingEditorViewModel.autoSave =
+			editorViewModel?.autoSave ?? this._currentSettings.settingEditorViewModel.autoSave
 	}
 
 	private _setSettingTheme(themeViewModel: SettingThemeViewModel) {
@@ -104,6 +109,11 @@ export class SettingsStore {
 					this._currentSettings.settingEditorViewModel.fontFamily !== this._draftSettings.settingEditorViewModel.fontFamily
 						? this._draftSettings.settingEditorViewModel.fontFamily
 						: "sans-serif",
+
+				autoSave:
+					this._currentSettings.settingEditorViewModel.autoSave !== this._draftSettings.settingEditorViewModel.autoSave
+						? this._draftSettings.settingEditorViewModel.autoSave
+						: this._currentSettings.settingEditorViewModel.autoSave,
 			},
 
 			settingThemeViewModel: {
@@ -135,6 +145,10 @@ export class SettingsStore {
 
 	onChangeFontFamily(fontFamily: string) {
 		this._draftSettings.settingEditorViewModel.fontFamily = fontFamily
+	}
+
+	onChangeAutoSave(autoSave: string) {
+		this._draftSettings.settingEditorViewModel.autoSave = autoSave
 	}
 
 	onChangeTheme(theme: string) {

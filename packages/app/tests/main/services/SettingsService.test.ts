@@ -13,6 +13,7 @@ describe("Settings Service - Sync Settings Session", () => {
 			width: 600,
 			fontSize: 16,
 			fontFamily: "sans-serif",
+			autoSave: "off",
 		},
 		settingThemeDto: {
 			theme: "light",

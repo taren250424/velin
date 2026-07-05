@@ -23,6 +23,8 @@ export class TabEditorStore {
 		useRegex: false,
 	}
 
+	private _autoSaveMode = "off"
+
 	//
 
 	toTabEditorViewModel(dto: TabEditorDto): TabEditorViewModel {
@@ -120,5 +122,13 @@ export class TabEditorStore {
 
 	get searchOptions() {
 		return this._searchOptions
+	}
+
+	get autoSaveMode() {
+		return this._autoSaveMode
+	}
+
+	set autoSaveMode(mode: string) {
+		this._autoSaveMode = mode
 	}
 }

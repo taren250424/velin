@@ -838,6 +838,7 @@ export class CommandManager {
 		editor.width && this.tabEditorFacade.changeEditorWidth(editor.width)
 		editor.fontSize && this.tabEditorFacade.changeFontSize(editor.fontSize)
 		editor.fontFamily && this.tabEditorFacade.changeFontFamily(editor.fontFamily)
+		editor.autoSave && this.tabEditorFacade.setAutoSaveMode(editor.autoSave)
 
 		if (theme) {
 			const html = document.documentElement

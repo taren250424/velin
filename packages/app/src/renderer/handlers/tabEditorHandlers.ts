@@ -26,6 +26,8 @@ export function handleTabEditor(
 	bindMousemoveEventsForDrag(emitter, tabEditorFacade)
 	bindMouseupEventsForDrag(emitter, tabEditorFacade)
 	bindMouseleaveEventsForDrag(emitter, tabEditorFacade)
+
+	bindWindowBlurEventForAutoSave(tabEditorFacade)
 }
 
 //
@@ -167,6 +169,14 @@ function bindShortcutEvents(
 		async () => await dispatcher.dispatch("closeTab", "shortcut", tabEditorFacade.activeTabId)
 	)
 	shortcutRegistry.register("Ctrl+Alt+ENTER", async () => await dispatcher.dispatch("replaceAll", "shortcut"))
+}
+
+//
+
+function bindWindowBlurEventForAutoSave(tabEditorFacade: TabEditorFacade) {
+	window.addEventListener("blur", () => {
+		tabEditorFacade.notifyWindowBlurForAutoSave()
+	})
 }
 
 //

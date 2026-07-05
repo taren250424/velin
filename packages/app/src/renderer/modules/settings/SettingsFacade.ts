@@ -95,6 +95,10 @@ export class SettingsFacade {
 				update: this.store.onChangeFontFamily.bind(this.store),
 			},
 			{
+				on: this.renderer.onChangeAutoSave.bind(this.renderer),
+				update: this.store.onChangeAutoSave.bind(this.store),
+			},
+			{
 				on: this.renderer.onChangeTheme.bind(this.renderer),
 				update: this.store.onChangeTheme.bind(this.store),
 			},

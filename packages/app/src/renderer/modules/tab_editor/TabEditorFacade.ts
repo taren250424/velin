@@ -1,4 +1,5 @@
 import "@milkdown/theme-nord/style.css"
+import type Response from "@shared/types/Response"
 import type { TabEditorDto, TabEditorsDto } from "@shared/dto/TabEditorDto"
 import type { TabEditorViewModel } from "../../viewmodels/TabEditorViewModel"
 
@@ -16,13 +17,19 @@ import { DI, DOM } from "@renderer/constants"
 // export const BINARY_FILE_WARNING = '❌'
 export const BINARY_FILE_WARNING = `Can't read this file`
 
+const AUTO_SAVE_DELAY_MS = 1000
+
 @injectable()
 export class TabEditorFacade {
+	private _autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+
 	constructor(
 		@inject(DI.TabEditorStore) public readonly store: TabEditorStore,
 		@inject(DI.TabEditorRenderer) public readonly renderer: TabEditorRenderer,
 		@inject(DI.TabDragManager) public readonly drag: TabDragManager
-	) {}
+	) {
+		this.renderer.setAutoSaveNotifier((kind) => this._handleAutoSaveEvent(kind))
+	}
 
 	//
 
@@ -556,6 +563,53 @@ export class TabEditorFacade {
 		tabEditorsDto.data.forEach((dto) => {
 			this.applySaveResult(dto)
 		})
+	}
+
+	// auto save
+
+	setAutoSaveMode(mode: string) {
+		this.store.autoSaveMode = mode
+		if (mode !== "afterDelay") this._clearAutoSaveTimer()
+	}
+
+	notifyWindowBlurForAutoSave() {
+		const mode = this.store.autoSaveMode
+		if (mode === "onFocusChange" || mode === "onWindowChange") {
+			this._runAutoSave()
+		}
+	}
+
+	private _handleAutoSaveEvent(kind: "input" | "blur") {
+		const mode = this.store.autoSaveMode
+
+		if (kind === "input" && mode === "afterDelay") {
+			this._clearAutoSaveTimer()
+			this._autoSaveTimer = setTimeout(() => {
+				this._autoSaveTimer = null
+				this._runAutoSave()
+			}, AUTO_SAVE_DELAY_MS)
+		} else if (kind === "blur" && mode === "onFocusChange") {
+			this._runAutoSave()
+		}
+	}
+
+	private _clearAutoSaveTimer() {
+		if (this._autoSaveTimer !== null) {
+			clearTimeout(this._autoSaveTimer)
+			this._autoSaveTimer = null
+		}
+	}
+
+	private async _runAutoSave() {
+		// Untitled and binary tabs are skipped: saving an untitled tab opens a
+		// dialog, which auto save must never do.
+		for (const view of this.renderer.tabEditorViews) {
+			const dto = this._getTabEditorDtoByView(view)
+			if (!dto.isModified || !dto.filePath || dto.isBinary) continue
+
+			const response: Response<TabEditorDto> = await window.rendererToMain.save(dto)
+			if (response.result && !response.data.isModified) this.applySaveResult(response.data)
+		}
 	}
 
 	private _removeTabAt(index: number) {

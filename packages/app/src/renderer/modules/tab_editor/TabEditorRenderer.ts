@@ -19,6 +19,9 @@ export class TabEditorRenderer {
 
 	private _ghostTab: HTMLElement | null = null
 	private _indicator: HTMLElement | null = null
+	private _autoSaveNotifier: (kind: "input" | "blur") => void = () => {
+		/* no-op until the facade registers its notifier */
+	}
 	private _throttledTempSave = throttle(async (view: TabEditorView, vm: TabEditorViewModel) => {
 		await window.rendererToMain.tempSave({
 			id: vm.id,
@@ -31,6 +34,10 @@ export class TabEditorRenderer {
 	}, 1500)
 
 	constructor(@inject(DI.TabEditorElements) readonly elements: TabEditorElements) {}
+
+	setAutoSaveNotifier(notifier: (kind: "input" | "blur") => void) {
+		this._autoSaveNotifier = notifier
+	}
 
 	private _createTabEl(id: string, filePath: string, fileName: string) {
 		const tabBox = document.createElement("div")
@@ -113,6 +120,8 @@ export class TabEditorRenderer {
 
 			this._throttledTempSave(view, vm)
 		}
+
+		this._autoSaveNotifier("input")
 	}
 
 	private _handleEditorBlur(view: TabEditorView, vm: TabEditorViewModel) {
@@ -120,6 +129,8 @@ export class TabEditorRenderer {
 			const firstLine = view.getEditorFirstLine()
 			view.setTabSpanTextContent(firstLine || "Untitled")
 		}
+
+		this._autoSaveNotifier("blur")
 	}
 
 	async createTabAndEditor(viewModel: TabEditorViewModel) {
