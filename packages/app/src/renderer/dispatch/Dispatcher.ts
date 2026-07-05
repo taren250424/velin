@@ -183,10 +183,10 @@ export class Dispatcher {
 			//
 
 			esc: {
-				"find-replace": {
-					shortcut: async () => this.commandManager.performCloseFindReplaceBox(),
-				},
-				editor: {
+				// Closing must work from any zone: clicking the tab bar or tree
+				// leaves the task there (activeElement can be body), and a
+				// per-zone table would silently swallow Esc in those cases.
+				default: {
 					shortcut: async () => this.commandManager.performCloseFindReplaceBox(),
 				},
 			},
