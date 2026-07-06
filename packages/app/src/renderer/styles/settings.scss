@@ -14,8 +14,7 @@ $setting-node-margin: 5px;
 $setting-node-label-width: 100px;
 $setting-node-input-number-width: 50px;
 $setting-node-input-string-width: 120px;
-$setting-node-select-width: 120px;
-$setting-node-select-wide-width: 170px;
+$setting-node-select-width: 170px;
 
 #settings-overlay {
 	display: none;
@@ -167,40 +166,6 @@ $setting-node-select-wide-width: 170px;
 	width: $setting-node-input-string-width;
 }
 
-.setting-node > aero-select {
-	--aero-select-width: #{$setting-node-select-width};
-	--aero-select-height: calc(#{$setting-node-height} - (#{$setting-node-margin} * 2));
-
-	--aero-select-border: var(--setting-node-border-color);
-
-	--aero-select-dropdown-border: 1px solid var(--setting-node-border-color);
-	--aero-select-dropdown-hover-item-background: var(--settings-menu-button-bg);
-	--aero-select-dropdown-hover-item-color: black;
-
-	--aero-select-button-background: var(--settings-menu-button-bg);
-	--aero-select-button-border: none;
-	--aero-select-button-hover-border: none;
-	--aero-select-button-hover-background: var(--settings-menu-button-bg);
-
-	--aero-select-font-size: 0.9rem;
-
-	--aero-select-dropdown-item-background: var(--overlay-surface-bg);
-
-	text-align: center;
-	vertical-align: middle;
+.setting-node > velin-select {
+	--velin-select-width: #{$setting-node-select-width};
 }
-
-// Slotted options are fixed-height single-line boxes inside the component,
-// so a label that wraps overlaps the next option. Keep labels on one line
-// and give the auto-save select room for its long labels.
-.setting-node aero-option {
-	white-space: nowrap;
-}
-
-#setting-node-editor-auto-save > aero-select {
-	--aero-select-width: #{$setting-node-select-wide-width};
-}
-
-// .setting-node aero-option:not(:last-child) {
-//   border-bottom: var(--aero-select-dropdown-item-border);
-// }

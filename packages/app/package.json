@@ -75,7 +75,6 @@
 	"dependencies": {
 		"@milkdown/crepe": "^7.12.1",
 		"@milkdown/theme-nord": "^7.12.1",
-		"@taren250424/aero": "^0.1.1",
 		"chokidar": "^4.0.3",
 		"electron-squirrel-startup": "^1.0.1",
 		"inversify": "^7.5.2",

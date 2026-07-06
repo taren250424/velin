@@ -1,5 +1,5 @@
 import { injectable } from "inversify"
-import * as aero from "@taren250424/aero"
+import type { VelinSelect } from "../../components/VelinSelect"
 
 @injectable()
 export class SettingsElements {
@@ -19,12 +19,10 @@ export class SettingsElements {
 	public readonly editorWidthInput: HTMLInputElement
 
 	public readonly autoSaveDiv: HTMLElement
-	public readonly autoSaveSelect: aero.AeroSelect
-	public readonly autoSaveOptions: NodeListOf<aero.AeroOption>
+	public readonly autoSaveSelect: VelinSelect
 
 	public readonly themeDiv: HTMLElement
-	public readonly themeSelect: aero.AeroSelect
-	public readonly themeOptions: NodeListOf<aero.AeroOption>
+	public readonly themeSelect: VelinSelect
 
 	constructor() {
 		this.exit = document.querySelector("#settings-exit") as HTMLElement
@@ -46,11 +44,9 @@ export class SettingsElements {
 		this.editorWidthInput = document.querySelector("#setting-node-editor-width input") as HTMLInputElement
 
 		this.autoSaveDiv = document.querySelector("#setting-node-editor-auto-save") as HTMLElement
-		this.autoSaveSelect = document.querySelector("#setting-node-editor-auto-save aero-select") as aero.AeroSelect
-		this.autoSaveOptions = this.autoSaveSelect.querySelectorAll("aero-option") as NodeListOf<aero.AeroOption>
+		this.autoSaveSelect = document.querySelector("#setting-node-editor-auto-save velin-select") as VelinSelect
 
 		this.themeDiv = document.querySelector("#settings-node-theme") as HTMLElement
-		this.themeSelect = document.querySelector("#settings-node-theme aero-select") as aero.AeroSelect
-		this.themeOptions = this.themeSelect.querySelectorAll("aero-option") as NodeListOf<aero.AeroOption>
+		this.themeSelect = document.querySelector("#settings-node-theme velin-select") as VelinSelect
 	}
 }

@@ -5,6 +5,9 @@ import 'simplebar/dist/simplebar.css'
 import { DI } from "./constants"
 import diContainer from "./diContainer"
 
+// Registers the <velin-select> custom element before any module queries it.
+import "./components/VelinSelect"
+
 import { CommandQueue, FocusManager, ShortcutRegistry } from "./core"
 import { Dispatcher } from "./dispatch"
 import { EventEmitter } from "events"
