@@ -1,28 +1,20 @@
-@use "./dimensions.scss" as dimensions;
+$settings-menu-width: 172px;
+$settings-nav-item-height: 34px;
 
-$settings-menu-width: 110px;
-$settings-menu-button-width: 100px;
-$settings-menu-button-height: 24px;
-$settings-menu-gap: 5px;
+$setting-node-input-number-width: 96px;
+$setting-node-input-string-width: 200px;
+$setting-node-select-width: 200px;
 
-$settings-button-width: dimensions.$button-width;
-$settings-button-height: dimensions.$button-height;
-$settings-button-margin: dimensions.$button-margin;
-
-$setting-node-height: 40px;
-$setting-node-margin: 5px;
-$setting-node-label-width: 100px;
-$setting-node-input-number-width: 50px;
-$setting-node-input-string-width: 120px;
-$setting-node-select-width: 170px;
+// Subtle hairline used for section dividers and field borders.
+$divider: color-mix(in srgb, var(--setting-node-border-color) 55%, transparent);
 
 #settings-overlay {
 	display: none;
 }
 
 #settings-container {
-	width: 70%;
-	height: 70%;
+	width: min(760px, 84vw);
+	height: min(560px, 84vh);
 
 	display: flex;
 	flex-direction: column;
@@ -30,126 +22,247 @@ $setting-node-select-width: 170px;
 	overflow: hidden; // cause settings-top.
 }
 
+//
+// Header
+//
+
 #settings-top {
-	height: dimensions.$title_height;
-	background-color: var(--title-bg);
+	flex-shrink: 0;
+	height: 46px;
+	padding: 0 10px 0 18px;
 
 	display: flex;
-	justify-content: end;
 	align-items: center;
+	justify-content: space-between;
+
+	background-color: var(--title-bg);
+	border-bottom: 1px solid #{$divider};
 }
 
-#settings-top button {
-	width: dimensions.$title_button_width;
-	height: dimensions.$title_button_height;
+#settings-title {
+	font-size: 0.95rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--app-font-color);
 }
 
-// should be of equal width and height
-#settings-top svg {
-	width: dimensions.$title_button_height;
-	height: dimensions.$title_button_height;
-	padding: 10px;
+#settings-exit {
+	width: 30px;
+	height: 30px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border: none;
+	border-radius: 6px;
+	background: none;
+	color: var(--close-btn);
+	transition: background-color 120ms ease, color 120ms ease;
 }
 
-#settings-top button:hover {
-	background: var(--warning-color);
-
-	& svg {
-		color: var(--hover-foreground-color);
-	}
+#settings-exit:hover {
+	background-color: var(--warning-color);
+	color: var(--hover-foreground-color);
 }
+
+#settings-exit svg {
+	width: 16px;
+	height: 16px;
+}
+
+//
+// Body
+//
 
 #settings-section {
 	flex: 1;
 	display: flex;
+	min-height: 0; // allow inner scroll areas to shrink
 }
 
 #settings-menus {
-	min-width: $settings-menu-width;
+	flex-shrink: 0;
+	width: $settings-menu-width;
 
 	display: flex;
 	flex-direction: column;
-	justify-content: baseline;
-	align-items: end;
+	gap: 2px;
 
-	gap: $settings-menu-gap;
+	padding: 14px 10px;
 
 	background-color: var(--settings-menu-container);
+	border-right: 1px solid #{$divider};
 }
 
-#settings-menus button {
-	width: $settings-menu-button-width;
-	height: $settings-menu-button-height;
+.settings-nav-item {
+	position: relative;
 
-	font-size: 0.8rem;
+	width: 100%;
+	height: $settings-nav-item-height;
+	padding: 0 12px;
 
-	background-color: var(--settings-menu-button-bg);
+	display: flex;
+	align-items: center;
+
+	font-size: 0.85rem;
+	text-align: left;
+	color: var(--app-font-color);
+
+	border: none;
+	border-radius: 6px;
+	background: none;
+	transition: background-color 120ms ease;
 }
 
-.settings-menu-button:hover {
-	background-color: var(--settings-menu-button-hover);
+.settings-nav-item:hover {
+	background-color: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
-#settings-menus button.selected {
-	background-color: var(--settings-menu-button-selected);
+.settings-nav-item.selected {
+	font-weight: 600;
+	background-color: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.settings-nav-item.selected::before {
+	content: "";
+	position: absolute;
+	left: 4px;
+	top: 8px;
+	bottom: 8px;
+	width: 3px;
+	border-radius: 2px;
+	background-color: var(--accent);
 }
 
 #settings-contents {
 	flex: 1;
+	min-width: 0;
 	background-color: var(--settings-contents);
 }
 
 #settings-contents > div {
 	width: 100%;
 	height: 100%;
+	padding: 22px 28px;
+	overflow-y: auto;
 	display: none;
 }
 
+.settings-panel-title {
+	margin: 0 0 8px;
+	padding-bottom: 12px;
+
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: var(--app-font-color);
+
+	border-bottom: 1px solid #{$divider};
+}
+
+//
+// Footer
+//
+
 #settings-bottom {
+	flex-shrink: 0;
+
 	display: flex;
-	justify-content: end;
+	justify-content: flex-end;
+	gap: 8px;
+
+	padding: 12px 16px;
+
 	background-color: var(--title-bg);
+	border-top: 1px solid #{$divider};
 }
 
 #settings-bottom button {
-	width: $settings-button-width;
-	height: $settings-button-height;
-	margin: $settings-button-margin;
+	min-width: 88px;
+	height: 32px;
+	padding: 0 18px;
 
-	background-color: var(--overlay-surface-button-bg);
+	font-size: 0.85rem;
+	font-weight: 500;
+
+	border: 1px solid transparent;
+	border-radius: 6px;
+	transition: background-color 120ms ease, border-color 120ms ease, filter 120ms ease;
 }
 
-#settings-bottom button:hover {
+#settings-close-btn {
+	color: var(--app-font-color);
+	background-color: var(--overlay-surface-button-bg);
+	border-color: #{$divider};
+}
+
+#settings-close-btn:hover {
 	background-color: var(--overlay-surface-button-hover-bg);
+	border-color: var(--setting-node-border-color);
+}
+
+#settings-apply-btn.primary {
+	color: var(--accent-contrast);
+	background-color: var(--accent);
+}
+
+#settings-apply-btn.primary:hover {
+	filter: brightness(1.08);
+}
+
+//
+// Setting rows
+//
+
+.setting-node {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+
+	min-height: 52px;
+	padding: 8px 0;
+
+	border-bottom: 1px solid #{$divider};
+}
+
+.setting-node:last-child {
+	border-bottom: none;
 }
 
 .setting-node-disabled {
 	cursor: default;
-	background-color: var(--disabled-bg);
-}
-
-.setting-node {
-	display: flex;
-
-	height: $setting-node-height;
-}
-
-.setting-node > * {
-	border: 1px solid var(--setting-node-border-color);
-	margin: $setting-node-margin;
+	opacity: 0.55;
 }
 
 .setting-node > label {
-	width: $setting-node-label-width;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	font-size: 0.9rem;
+	color: var(--app-font-color);
 }
 
 .setting-node > input {
-	text-align: center;
-	vertical-align: middle;
+	height: 32px;
+	padding: 0 10px;
+
+	font: inherit;
+	font-size: 0.88rem;
+	text-align: left;
+	color: var(--app-font-color);
+
+	background-color: var(--overlay-surface-button-bg);
+	border: 1px solid var(--setting-node-border-color);
+	border-radius: 6px;
+
+	transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.setting-node > input:hover {
+	border-color: var(--accent);
+}
+
+.setting-node > input:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .setting-node > input[type="number"] {
@@ -168,4 +281,6 @@ $setting-node-select-width: 170px;
 
 .setting-node > velin-select {
 	--velin-select-width: #{$setting-node-select-width};
+	height: 32px;
+	border-radius: 6px;
 }

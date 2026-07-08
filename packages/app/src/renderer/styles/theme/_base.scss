@@ -10,6 +10,7 @@
 	$ref: map.get($p, ref);
 	$deactive: map.get($p, deactive);
 	$accent: map.get($p, accent);
+	$accent-contrast: map.get($p, accent-contrast);
 
 	$warning-color: map.get($p, warning-color);
 	$font-color: map.get($p, font-color);
@@ -25,6 +26,7 @@
 	--app-bg: #{$bg-surface};
 	--app-font-color: #{$font-color};
 	--accent: #{$accent};
+	--accent-contrast: #{$accent-contrast};
 
 	--overlay-surface-bg: #{$bg-highlight};
 	--overlay-surface-button-bg: #{$bg-surface};

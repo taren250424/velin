@@ -140,7 +140,8 @@ $tooltip-border-radius: 4px;
 
 	z-index: 98;
 
-	background-color: transparent;
+	background-color: rgba(0, 0, 0, 0.35);
+	backdrop-filter: blur(2px);
 }
 
 .overlay-surface {
