@@ -59,6 +59,10 @@ export class SettingsStore {
 	setSettingsValue(viewModel: SettingsViewModel) {
 		this._setSettingEditor(viewModel.settingEditorViewModel)
 		this._setSettingTheme(viewModel.settingThemeViewModel)
+
+		// The draft must mirror the loaded settings, otherwise getChangeSet()
+		// reports the constructor defaults as user edits on the next Apply.
+		this.resetChangeSet()
 	}
 
 	private _setSettingEditor(editorViewModel: SettingEditorViewModel) {
@@ -98,17 +102,17 @@ export class SettingsStore {
 				width:
 					this._currentSettings.settingEditorViewModel.width !== this._draftSettings.settingEditorViewModel.width
 						? this._draftSettings.settingEditorViewModel.width
-						: 500,
+						: this._currentSettings.settingEditorViewModel.width,
 
 				fontSize:
 					this._currentSettings.settingEditorViewModel.fontSize !== this._draftSettings.settingEditorViewModel.fontSize
 						? this._draftSettings.settingEditorViewModel.fontSize
-						: 12,
+						: this._currentSettings.settingEditorViewModel.fontSize,
 
 				fontFamily:
 					this._currentSettings.settingEditorViewModel.fontFamily !== this._draftSettings.settingEditorViewModel.fontFamily
 						? this._draftSettings.settingEditorViewModel.fontFamily
-						: "sans-serif",
+						: this._currentSettings.settingEditorViewModel.fontFamily,
 
 				autoSave:
 					this._currentSettings.settingEditorViewModel.autoSave !== this._draftSettings.settingEditorViewModel.autoSave
